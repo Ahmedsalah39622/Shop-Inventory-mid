@@ -1,0 +1,104 @@
+@model ShopInventory.Models.Item
+@{
+    ViewData["Title"] = "Edit Product";
+    Layout = "_DashboardLayout";
+}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">تعديل المنتج</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">المنتجات</a></li>
+        <li class="breadcrumb-item active">تعديل</li>
+    </ol>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-box me-1"></i>
+                    تفاصيل المنتج
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Code" class="form-label"></label>
+                                <input asp-for="Code" class="form-control" />
+                                <span asp-validation-for="Code" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Barcode" class="form-label"></label>
+                                <input asp-for="Barcode" class="form-control" />
+                                <span asp-validation-for="Barcode" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">اسم المنتج</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Category" class="form-label">فئة</label>
+                                <input asp-for="Category" class="form-control" />
+                                <span asp-validation-for="Category" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Unit" class="form-label">وحدة</label>
+                                <input asp-for="Unit" class="form-control" />
+                                <span asp-validation-for="Unit" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label asp-for="PurchasePrice" class="form-label">سعر الشراء</label>
+                                <input asp-for="PurchasePrice" class="form-control" type="number" step="0.01" />
+                                <span asp-validation-for="PurchasePrice" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="SalePrice" class="form-label">سعر البيع</label>
+                                <input asp-for="SalePrice" class="form-control" type="number" step="0.01" />
+                                <span asp-validation-for="SalePrice" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="ReorderLevel" class="form-label">مستوى إعادة الطلب</label>
+                                <input asp-for="ReorderLevel" class="form-control" type="number" step="1" />
+                                <span asp-validation-for="ReorderLevel" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="Quantity" class="form-label">الكمية</label>
+                                <input asp-for="Quantity" class="form-control" type="number" step="1" min="0" />
+                                <span asp-validation-for="Quantity" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="SupplierId" class="form-label">المورد</label>
+                                <select asp-for="SupplierId" class="form-select" asp-items="@(new SelectList(ViewBag.Suppliers, "Id", "Name"))">
+                                    <option value="">-- اختر المورد --</option>
+                                </select>
+                                <span asp-validation-for="SupplierId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ExpiryDate" class="form-label">تاريخ الانتهاء</label>
+                                <input asp-for="ExpiryDate" class="form-control" type="date" />
+                                <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsActive" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label">نشط</label>
+                        </div>
+                        <div class="mb-3">
+                            <input type="submit" value="حفظ" class="btn btn-primary" />
+                            <a asp-action="Index" class="btn btn-secondary">العودة إلى القائمة</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

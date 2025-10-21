@@ -1,0 +1,112 @@
+@{
+    var isPrint = Context.Request.Query["print"] == "true";
+    Layout = isPrint ? null : "_DashboardLayout";
+}
+@if (isPrint)
+{
+    <style>
+        body { background: #fff !important; }
+        .container-fluid { margin: 0; padding: 0; }
+        .card, .card-body, .card-header, .card-footer { border: none !important; box-shadow: none !important; }
+        h1, .table { margin-top: 0 !important; }
+        table.print-table {
+            width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 1.05rem;
+        }
+        table.print-table th, table.print-table td { border: 1px solid #333; padding: 8px 14px; text-align: left; }
+        table.print-table th { background: #f2f2f2; font-weight: bold; }
+        table.print-table tr:nth-child(even) { background: #fafafa; }
+        table.print-table tr:hover { background: #e6f7ff; }
+    </style>
+    <script>window.onload = function() { window.print(); }</script>
+}
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+        <h1 class="mb-0">Financial Reports</h1>
+        <button class="btn btn-outline-primary" type="button" onclick="printWithFilter()">
+            <i class="fas fa-print"></i> Print
+        </button>
+        <script>
+            function printWithFilter() {
+                const params = new URLSearchParams(window.location.search);
+                params.set('print', 'true');
+                window.open(window.location.pathname + '?' + params.toString(), '_blank');
+            }
+        </script>
+    </div>
+
+@model IEnumerable<ShopInventory.Models.LedgerEntry>
+@{
+    ViewData["Title"] = "Financial Reports";
+    Layout = "_DashboardLayout";
+}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Financial Reports</h1>
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="@(isPrint ? "print-table" : "table table-bordered table-hover align-middle")">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Type</th>
+                            <th>Reference</th>
+                            @if (!isPrint)
+                            {
+                                <th>Actions</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var entry in Model)
+                        {
+                            <tr>
+                                <td>@entry.Date.ToString("yyyy-MM-dd")</td>
+                                <td>@entry.Description</td>
+                                <td>@entry.Amount.ToString("N2")</td>
+                                <td>@entry.EntryType</td>
+                                <td>@entry.Reference</td>
+                                @if (!isPrint)
+                                {
+                                    <td>
+                                        <button class="btn btn-danger btn-sm delete-entry" data-id="@entry.Id" title="Delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.delete-entry').click(function(e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                if (confirm('Are you sure you want to delete this entry?')) {
+                    $.ajax({
+                        url: `/Reports/DeleteFinancialEntry/${id}`,
+                        type: 'POST',
+                        success: function(result) {
+                            if (result.success) {
+                                // Remove the row from the table
+                                $(e.target).closest('tr').fadeOut(300, function() { $(this).remove(); });
+                            } else {
+                                alert('Failed to delete the entry. Please try again.');
+                            }
+                        },
+                        error: function() {
+                            alert('An error occurred while deleting the entry.');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,100 @@
+@model IEnumerable<ShopInventory.Models.Item>
+
+@{
+    ViewData["Title"] = "Inventory";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">المخزون</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">المنتجات</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-table me-1"></i>
+                قائمة المنتجات
+            </div>
+            <a asp-action="Create" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> إضافة منتج جديد
+            </a>
+        </div>
+        <div class="card-body">
+            <table id="itemsTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>الكود</th>
+                        <th>الاسم</th>
+                        <th>الفئة</th>
+                        <th>الكمية</th>
+                        <th>الوحدة</th>
+                        <th>سعر الشراء</th>
+                        <th>سعر البيع</th>
+                        <th>مستوى إعادة الطلب</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="@(item.Quantity <= item.ReorderLevel ? "table-warning" : "")">
+                            <td>@item.Code</td>
+                            <td>@item.Name</td>
+                            <td>@item.Category</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.Unit</td>
+                            <td>@item.PurchasePrice.ToString("C2")</td>
+                            <td>@item.SalePrice.ToString("C2")</td>
+                            <td>@item.ReorderLevel</td>
+                            <td>
+                                @if (item.Quantity <= item.ReorderLevel)
+                                {
+                                    <span class="badge bg-warning">مخزون منخفض</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">متوفر في المخزون</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">
+                                        <i class="fas fa-info-circle"></i>
+                                    </a>
+                                    <a asp-action="Adjust" asp-route-id="@item.Id" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-balance-scale"></i>
+                                    </a>
+                                    <a asp-action="StockMovement" asp-route-itemId="@item.Id" class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-history"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            if (!$.fn.DataTable.isDataTable('#itemsTable')) {
+                $('#itemsTable').DataTable({
+                    "order": [[1, "asc"]],
+                    "pageLength": 25,
+                    "columnDefs": [
+                        { "orderable": false, "targets": 9 }
+                    ]
+                });
+            }
+        });
+    </script>
+}

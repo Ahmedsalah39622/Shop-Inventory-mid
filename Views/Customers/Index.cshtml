@@ -1,0 +1,135 @@
+@model IEnumerable<ShopInventory.Models.Customer>
+
+@{
+    ViewData["Title"] = "Customers";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Customers</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Customers</li>
+    </ol>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <h4>@Model.Count()</h4>
+                    Total Customers
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h4>@Model.Count(c => c.Balance > 0)</h4>
+                    With Balance
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h4>@Model.Count(c => c.IsActive)</h4>
+                    Active Customers
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white mb-4">
+                <div class="card-body">
+                    <h4>@Model.Sum(c => c.Balance).ToString("C2")</h4>
+                    Total Balance
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-users me-1"></i>
+                Customers List
+            </div>
+            <div>
+                @if (User.IsInRole("Admin") || User.IsInRole("Cashier"))
+                {
+                    <a asp-action="Create" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Add New Customer
+                    </a>
+                }
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="customersTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Balance</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var customer in Model)
+                    {
+                        <tr class="@(customer.Balance > 0 ? "table-warning" : "")">
+                            <td>@customer.Name</td>
+                            <td>@customer.Phone</td>
+                            <td>@customer.Email</td>
+                            <td>@customer.Address</td>
+                            <td class="text-end">@customer.Balance.ToString("C2")</td>
+                            <td>
+                                @if (customer.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    @if (User.IsInRole("Admin") || User.IsInRole("Cashier"))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@customer.Id" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    }
+                                    <a asp-action="Details" asp-route-id="@customer.Id" class="btn btn-info btn-sm">
+                                        <i class="fas fa-info-circle"></i>
+                                    </a>
+                                    <a asp-controller="Sales" asp-action="Create" asp-route-customerId="@customer.Id" 
+                                       class="btn btn-success btn-sm">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            if (!$.fn.DataTable.isDataTable('#customersTable')) {
+                $('#customersTable').DataTable({
+                    "order": [[0, "asc"]],
+                    "pageLength": 25,
+                    "columnDefs": [
+                        { "orderable": false, "targets": 6 }
+                    ]
+                });
+            }
+        });
+    </script>
+}

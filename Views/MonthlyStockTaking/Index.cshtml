@@ -1,0 +1,36 @@
+@model List<ShopInventory.Models.StockTaking>
+@{
+    ViewData["Title"] = "Monthly Stock Taking";
+    Layout = "_DashboardLayout";
+}
+<h1>Monthly Stock Taking</h1>
+<form asp-action="Save" method="post">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Expected Qty</th>
+                <th>Actual Qty</th>
+                <th>Difference</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <tr>
+                    <td>@Model[i].Product?.Name</td>
+                    <td>@Model[i].ExpectedQty</td>
+                    <td>
+                        <input asp-for="@Model[i].ActualQty" name="takings[@i].ActualQty" class="form-control" />
+                        <input type="hidden" name="takings[@i].ProductId" value="@Model[i].ProductId" />
+                        <input type="hidden" name="takings[@i].ExpectedQty" value="@Model[i].ExpectedQty" />
+                        <input type="hidden" name="takings[@i].Type" value="@Model[i].Type" />
+                        <input type="hidden" name="takings[@i].Date" value="@Model[i].Date.ToString("yyyy-MM-dd")" />
+                    </td>
+                    <td>@(Model[i].ActualQty - Model[i].ExpectedQty)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>

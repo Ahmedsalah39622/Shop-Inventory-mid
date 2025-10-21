@@ -1,0 +1,43 @@
+@model ShopInventory.Models.Item
+@{
+    ViewData["Title"] = "تعديل الكمية";
+    Layout = "_DashboardLayout";
+}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">تعديل كمية المنتج</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">المنتجات</a></li>
+        <li class="breadcrumb-item active">تعديل الكمية</li>
+    </ol>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-balance-scale me-1"></i>
+                    تعديل الكمية للمنتج @Model.Name
+                </div>
+                <div class="card-body">
+                    <form asp-action="Adjust" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="mb-3">
+                            <label class="form-label">الكمية الحالية</label>
+                            <input type="number" class="form-control" value="@Model.Quantity" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">قيمة التعديل</label>
+                            <input type="number" name="adjustment" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">سبب التعديل</label>
+                            <input type="text" name="reason" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <input type="submit" value="تعديل" class="btn btn-warning" />
+                            <a asp-action="Index" class="btn btn-secondary">العودة إلى القائمة</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

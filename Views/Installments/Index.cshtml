@@ -1,0 +1,84 @@
+@model IEnumerable<ShopInventory.Models.Installment>
+@{
+    ViewData["Title"] = "Installments";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>قوائم التقسيط</h2>
+        <a class="btn btn-primary" href="#" id="createInstallmentBtn"><i class="bi bi-plus-lg"></i> جديد</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped datatable" id="installmentsTable">
+            <thead>
+                <tr>
+                    <th>الرقم</th>
+                    <th>العميل</th>
+                    <th>نوع التقسيط</th>
+                    <th>معاد القسط القادم</th>
+                    <th>إجراءات</th>
+                    <th>المبلغ الكلي</th>
+                    <th>المقدم</th>
+                    <th>المتبقي</th>
+                    <th>عدد الاقساط</th>
+                    <th>المبلغ الشهري</th>
+                    <th>تاريخ الإنشاء</th>
+                    <th>الحالة</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model?.Any() ?? true)
+                {
+                    <tr>
+                        <td colspan="10" class="text-center text-muted">لا توجد بيانات بعد</td>
+                    </tr>
+                }
+                else
+                {
+                    var idx = 1;
+                    foreach (var it in Model ?? Enumerable.Empty<ShopInventory.Models.Installment>())
+                    {
+                        <tr>
+                            <td>@idx</td>
+                            <td>@(it.Customer?.Name ?? it.CustomerId.ToString())</td>
+                            <td>@(it.NextPaymentDate.HasValue ? it.NextPaymentDate.Value.ToString("yyyy-MM-dd") : "-")</td>
+                            <td>
+                                <a class="btn btn-sm btn-success" href="@Url.Action("Create", "InstallmentPayments", new { installmentId = it.Id })">استلام دفعة</a>
+                                <a class="btn btn-sm btn-info" href="@Url.Action("Details", "InstallmentPayments", new { installmentId = it.Id })">تفاصيل</a>
+                            </td>
+                            <td>@it.TotalAmount.ToString("C")</td>
+                            <td>@it.DownPayment.ToString("C")</td>
+                            <td>@it.RemainingAmount.ToString("C")</td>
+                            <td>@it.NumberOfMonths</td>
+                            <td>@it.MonthlyAmount.ToString("C")</td>
+                            <td>@it.CreatedAt.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(it.InstallmentType))
+                                {
+                                    <span class="badge bg-secondary">@it.InstallmentType</span>
+                                }
+                            </td>
+                            <td>
+                                @if (it.Status == "تم التحصيل كاملا")
+                                {
+                                    <span class="badge bg-success">تم التحصيل كاملا</span>
+                                }
+                                else if (it.Status == "تم الانتهاء من الدفعات")
+                                {
+                                    <span class="badge bg-secondary">تم الانتهاء من الدفعات</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info">@it.Status</span>
+                                }
+                            </td>
+                        </tr>
+                        idx++;
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

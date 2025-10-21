@@ -1,0 +1,368 @@
+@model ShopInventory.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_LoginLayout";
+}
+
+<style>
+    .login-container {
+        min-height: 100vh;
+        background: #fff;
+        display: flex;
+        align-items: stretch;
+        position: relative;
+    }
+
+    .login-content {
+        width: 45%;
+        background: #ffffff;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .bg-illustration {
+        width: 55%;
+        background: #0066ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .bg-illustration::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: url('/images/factory-3d.png');
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.9;
+        filter: brightness(1.1);
+    }
+
+    .form-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-subtitle {
+        color: #666;
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        display: block;
+        color: #4a4a4a;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .login-header::after {
+        content: '';
+        position: absolute;
+        bottom: -50px;
+        left: 0;
+        right: 0;
+        height: 50px;
+        background: white;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 50% 0);
+    }
+
+    .login-form {
+        padding: 2.5rem 2rem 2rem;
+    }
+
+    .form-floating {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #0066ff;
+        outline: none;
+        box-shadow: none;
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 0.75rem;
+        background: #0066ff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
+
+    .btn-login:hover {
+        background: #0052cc;
+    }
+
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 1.25rem 0;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+    }
+
+    .form-check-input {
+        margin-right: 0.5rem;
+        cursor: pointer;
+    }
+
+    .form-check-label {
+        color: #666;
+        font-size: 0.875rem;
+    }
+
+    .forgot-password {
+        color: #0066ff;
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+
+    .signup-text {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #666;
+        font-size: 0.875rem;
+    }
+
+    .signup-link {
+        color: #0066ff;
+        text-decoration: none;
+    }
+
+    .signup-link:hover {
+        text-decoration: underline;
+    }
+
+    .terms-text {
+        text-align: center;
+        font-size: 0.75rem;
+        color: #666;
+        margin-top: 1rem;
+    }
+
+    .create-account-link:hover {
+        color: #805ad5;
+    }
+
+    .create-account-link:hover::after {
+        transform: scaleX(1);
+        transform-origin: left;
+    }
+
+    @@keyframes slideUp {
+        0% {
+            transform: translateY(30px);
+            opacity: 0;
+        }
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes pulse {
+        0% { transform: scale(1); filter: brightness(1); }
+        50% { transform: scale(1.05); filter: brightness(1.1); }
+        100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    @@keyframes gradientFlow {
+        0% { background-position: 0% 50% }
+        50% { background-position: 100% 50% }
+        100% { background-position: 0% 50% }
+    }
+
+    .input-group-text {
+        background: transparent;
+        border: 2px solid rgba(107, 70, 193, 0.1);
+        border-left: none;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 0 12px 12px 0;
+        padding: 0.75rem 1rem;
+    }
+
+    .input-group-text:hover {
+        color: #6b46c1;
+        background: rgba(107, 70, 193, 0.05);
+    }
+
+    .validation-message {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: #e53e3e;
+        animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        padding-left: 0.5rem;
+        font-weight: 500;
+    }
+
+    .form-check-input {
+        border-color: rgba(107, 70, 193, 0.3);
+        width: 1.1rem;
+        height: 1.1rem;
+        border-radius: 0.3rem;
+    }
+
+    .form-check-input:checked {
+        background-color: #6b46c1;
+        border-color: #6b46c1;
+    }
+
+    .form-check-label {
+        color: #666;
+        font-size: 0.95rem;
+        padding-left: 0.3rem;
+    }
+
+    .text-primary {
+        color: #6b46c1 !important;
+    }
+
+    .text-muted {
+        color: #718096 !important;
+    }
+
+    @@keyframes fadeIn {
+        from { 
+            opacity: 0; 
+            transform: translateY(-8px);
+            filter: blur(2px);
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0);
+            filter: blur(0);
+        }
+    }
+
+    /* Glass morphism effect */
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    }
+</style>
+
+<div class="login-container">
+    <div class="bg-illustration"></div>
+    <div class="login-content">
+        <h1 class="form-title">SIGN IN</h1>
+        <p class="form-subtitle">Welcome to the Shop and Inventory Smart System</p>
+
+        <form asp-controller="Account" asp-action="Login" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="form-group">
+                <input asp-for="Email" class="form-control" placeholder="E-mail" autofocus>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input asp-for="Password" class="form-control" type="password" placeholder="Password">
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="terms">
+                    <label class="form-check-label" for="terms">I agree to the terms of service</label>
+                </div>
+
+                <button type="submit" class="btn btn-login">
+                    Create Account
+                </button>
+
+                <p class="signup-text">
+                    Don't have an account? 
+                    <a href="@Url.Action("Register", "Account")" class="signup-link">
+                        Sign up
+                    </a>
+                </p>
+                
+                <p class="terms-text text-center">
+                    By signing in, you agree to our Terms and Conditions
+                </p>
+            </form>
+        </div>
+
+        <script>
+            function togglePassword(icon) {
+                const input = icon.closest('.input-group').querySelector('input');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                }
+            }
+
+            // Add input animation
+            document.querySelectorAll('.form-control').forEach(input => {
+                input.addEventListener('focus', () => {
+                    input.parentElement.classList.add('focused');
+                });
+                input.addEventListener('blur', () => {
+                    if (!input.value) {
+                        input.parentElement.classList.remove('focused');
+                    }
+                });
+            });
+        </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.querySelector('.input-group-text').addEventListener('click', function() {
+            const input = this.previousElementSibling;
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            }
+        });
+    </script>
+}

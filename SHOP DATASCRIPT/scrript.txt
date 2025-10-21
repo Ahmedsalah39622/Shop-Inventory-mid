@@ -1,0 +1,530 @@
+USE [ShopInventoryDb]/***** the database name ******/
+GO
+/****** Object:  Table [dbo].[__EFMigrationsHistory]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[__EFMigrationsHistory](
+	[MigrationId] [nvarchar](150) NOT NULL,
+	[ProductVersion] [nvarchar](32) NOT NULL,
+ CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY CLUSTERED 
+(
+	[MigrationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ActivityLogs]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ActivityLogs](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Timestamp] [datetime2](7) NOT NULL,
+	[Action] [nvarchar](50) NOT NULL,
+	[EntityName] [nvarchar](100) NOT NULL,
+	[EntityId] [nvarchar](max) NULL,
+	[Description] [nvarchar](500) NULL,
+	[UserId] [nvarchar](128) NOT NULL,
+	[IpAddress] [nvarchar](50) NULL,
+ CONSTRAINT [PK_ActivityLogs] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AspNetRoleClaims]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetRoleClaims](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[RoleId] [nvarchar](128) NOT NULL,
+	[ClaimType] [nvarchar](max) NULL,
+	[ClaimValue] [nvarchar](max) NULL,
+ CONSTRAINT [PK_AspNetRoleClaims] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AspNetRoles]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetRoles](
+	[Id] [nvarchar](128) NOT NULL,
+	[Name] [nvarchar](128) NULL,
+	[NormalizedName] [nvarchar](128) NULL,
+	[ConcurrencyStamp] [nvarchar](max) NULL,
+ CONSTRAINT [PK_AspNetRoles] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AspNetUserClaims]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetUserClaims](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [nvarchar](128) NOT NULL,
+	[ClaimType] [nvarchar](max) NULL,
+	[ClaimValue] [nvarchar](max) NULL,
+ CONSTRAINT [PK_AspNetUserClaims] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AspNetUserLogins]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetUserLogins](
+	[LoginProvider] [nvarchar](128) NOT NULL,
+	[ProviderKey] [nvarchar](128) NOT NULL,
+	[ProviderDisplayName] [nvarchar](max) NULL,
+	[UserId] [nvarchar](128) NOT NULL,
+ CONSTRAINT [PK_AspNetUserLogins] PRIMARY KEY CLUSTERED 
+(
+	[LoginProvider] ASC,
+	[ProviderKey] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AspNetUserRoles]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetUserRoles](
+	[UserId] [nvarchar](128) NOT NULL,
+	[RoleId] [nvarchar](128) NOT NULL,
+ CONSTRAINT [PK_AspNetUserRoles] PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC,
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AspNetUsers]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetUsers](
+	[Id] [nvarchar](128) NOT NULL,
+	[FullName] [nvarchar](max) NOT NULL,
+	[UserName] [nvarchar](128) NULL,
+	[NormalizedUserName] [nvarchar](128) NULL,
+	[Email] [nvarchar](128) NULL,
+	[NormalizedEmail] [nvarchar](128) NULL,
+	[EmailConfirmed] [bit] NOT NULL,
+	[PasswordHash] [nvarchar](max) NULL,
+	[SecurityStamp] [nvarchar](max) NULL,
+	[ConcurrencyStamp] [nvarchar](max) NULL,
+	[PhoneNumber] [nvarchar](max) NULL,
+	[PhoneNumberConfirmed] [bit] NOT NULL,
+	[TwoFactorEnabled] [bit] NOT NULL,
+	[LockoutEnd] [datetimeoffset](7) NULL,
+	[LockoutEnabled] [bit] NOT NULL,
+	[AccessFailedCount] [int] NOT NULL,
+ CONSTRAINT [PK_AspNetUsers] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AspNetUserTokens]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AspNetUserTokens](
+	[UserId] [nvarchar](128) NOT NULL,
+	[LoginProvider] [nvarchar](128) NOT NULL,
+	[Name] [nvarchar](128) NOT NULL,
+	[Value] [nvarchar](max) NULL,
+ CONSTRAINT [PK_AspNetUserTokens] PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC,
+	[LoginProvider] ASC,
+	[Name] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Branches]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Branches](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Address] [nvarchar](200) NULL,
+	[Phone] [nvarchar](50) NULL,
+	[IsActive] [bit] NOT NULL,
+	[ManagerId] [nvarchar](128) NULL,
+ CONSTRAINT [PK_Branches] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Customers]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Customers](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Address] [nvarchar](200) NULL,
+	[Phone] [nvarchar](50) NULL,
+	[Email] [nvarchar](100) NULL,
+	[Balance] [decimal](18, 2) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+ CONSTRAINT [PK_Customers] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Items]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Items](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Code] [nvarchar](50) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Category] [nvarchar](50) NOT NULL,
+	[Unit] [nvarchar](20) NOT NULL,
+	[Quantity] [decimal](18, 3) NOT NULL,
+	[PurchasePrice] [decimal](18, 2) NOT NULL,
+	[SalePrice] [decimal](18, 2) NOT NULL,
+	[SupplierId] [int] NULL,
+	[ExpiryDate] [datetime2](7) NULL,
+	[IsActive] [bit] NOT NULL,
+	[ReorderLevel] [decimal](18, 3) NOT NULL,
+	[Barcode] [nvarchar](100) NULL,
+ CONSTRAINT [PK_Items] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[LedgerEntries]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[LedgerEntries](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Date] [datetime2](7) NOT NULL,
+	[Description] [nvarchar](100) NOT NULL,
+	[Amount] [decimal](18, 2) NOT NULL,
+	[EntryType] [int] NOT NULL,
+	[Reference] [nvarchar](100) NOT NULL,
+	[CreatedByUserId] [nvarchar](128) NOT NULL,
+	[BranchId] [int] NULL,
+ CONSTRAINT [PK_LedgerEntries] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Products]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Products](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](max) NOT NULL,
+	[SKU] [nvarchar](max) NOT NULL,
+	[Unit] [nvarchar](max) NOT NULL,
+	[CurrentStock] [decimal](18, 3) NOT NULL,
+ CONSTRAINT [PK_Products] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[PurchaseInvoiceItems]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[PurchaseInvoiceItems](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[PurchaseInvoiceId] [int] NOT NULL,
+	[ItemId] [int] NOT NULL,
+	[Quantity] [decimal](18, 3) NOT NULL,
+	[UnitPrice] [decimal](18, 2) NOT NULL,
+	[ItemName] [nvarchar](max) NULL,
+	[ProductCode] [nvarchar](max) NULL,
+	[Status] [nvarchar](max) NULL,
+	[CreatedByUserId] [int] NOT NULL,
+	[CreatedByUserName] [nvarchar](max) NULL,
+	[Date] [datetime2](7) NOT NULL,
+	[InvoiceNumber] [nvarchar](max) NULL,
+	[ClientName] [nvarchar](max) NULL,
+ CONSTRAINT [PK_PurchaseInvoiceItems] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[PurchaseInvoices]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[PurchaseInvoices](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[InvoiceNumber] [nvarchar](50) NOT NULL,
+	[Date] [datetime2](7) NOT NULL,
+	[SupplierId] [int] NOT NULL,
+	[TotalAmount] [decimal](18, 2) NOT NULL,
+	[PaidAmount] [decimal](18, 2) NOT NULL,
+	[Notes] [nvarchar](500) NULL,
+	[CreatedByUserId] [nvarchar](128) NOT NULL,
+	[ClientName] [nvarchar](max) NULL,
+ CONSTRAINT [PK_PurchaseInvoices] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SalesInvoiceItems]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SalesInvoiceItems](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[SalesInvoiceId] [int] NOT NULL,
+	[ItemId] [int] NOT NULL,
+	[Quantity] [decimal](18, 3) NOT NULL,
+	[UnitPrice] [decimal](18, 2) NOT NULL,
+ CONSTRAINT [PK_SalesInvoiceItems] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SalesInvoices]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SalesInvoices](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[InvoiceNumber] [nvarchar](50) NOT NULL,
+	[Date] [datetime2](7) NOT NULL,
+	[CustomerId] [int] NOT NULL,
+	[TotalAmount] [decimal](18, 2) NOT NULL,
+	[PaidAmount] [decimal](18, 2) NOT NULL,
+	[Notes] [nvarchar](500) NULL,
+	[CreatedByUserId] [nvarchar](128) NOT NULL,
+ CONSTRAINT [PK_SalesInvoices] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[StockMovements]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[StockMovements](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[ProductId] [int] NOT NULL,
+	[MovementType] [int] NOT NULL,
+	[Quantity] [decimal](18, 3) NOT NULL,
+	[Date] [datetime2](7) NOT NULL,
+	[Reference] [nvarchar](100) NOT NULL,
+	[CreatedByUserId] [nvarchar](128) NOT NULL,
+ CONSTRAINT [PK_StockMovements] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[StockTakings]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[StockTakings](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[ProductId] [int] NOT NULL,
+	[ExpectedQty] [decimal](18, 3) NOT NULL,
+	[ActualQty] [decimal](18, 3) NOT NULL,
+	[Difference] [decimal](18, 3) NOT NULL,
+	[Type] [int] NOT NULL,
+	[Date] [datetime2](7) NOT NULL,
+ CONSTRAINT [PK_StockTakings] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Suppliers]    Script Date: 10/10/2025 4:10:52 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Suppliers](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Address] [nvarchar](200) NULL,
+	[Phone] [nvarchar](50) NULL,
+	[Email] [nvarchar](100) NULL,
+	[Balance] [decimal](18, 2) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+ CONSTRAINT [PK_Suppliers] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[ActivityLogs]  WITH CHECK ADD  CONSTRAINT [FK_ActivityLogs_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[ActivityLogs] CHECK CONSTRAINT [FK_ActivityLogs_AspNetUsers_UserId]
+GO
+ALTER TABLE [dbo].[AspNetRoleClaims]  WITH CHECK ADD  CONSTRAINT [FK_AspNetRoleClaims_AspNetRoles_RoleId] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[AspNetRoles] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[AspNetRoleClaims] CHECK CONSTRAINT [FK_AspNetRoleClaims_AspNetRoles_RoleId]
+GO
+ALTER TABLE [dbo].[AspNetUserClaims]  WITH CHECK ADD  CONSTRAINT [FK_AspNetUserClaims_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[AspNetUserClaims] CHECK CONSTRAINT [FK_AspNetUserClaims_AspNetUsers_UserId]
+GO
+ALTER TABLE [dbo].[AspNetUserLogins]  WITH CHECK ADD  CONSTRAINT [FK_AspNetUserLogins_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[AspNetUserLogins] CHECK CONSTRAINT [FK_AspNetUserLogins_AspNetUsers_UserId]
+GO
+ALTER TABLE [dbo].[AspNetUserRoles]  WITH CHECK ADD  CONSTRAINT [FK_AspNetUserRoles_AspNetRoles_RoleId] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[AspNetRoles] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[AspNetUserRoles] CHECK CONSTRAINT [FK_AspNetUserRoles_AspNetRoles_RoleId]
+GO
+ALTER TABLE [dbo].[AspNetUserRoles]  WITH CHECK ADD  CONSTRAINT [FK_AspNetUserRoles_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[AspNetUserRoles] CHECK CONSTRAINT [FK_AspNetUserRoles_AspNetUsers_UserId]
+GO
+ALTER TABLE [dbo].[AspNetUserTokens]  WITH CHECK ADD  CONSTRAINT [FK_AspNetUserTokens_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[AspNetUserTokens] CHECK CONSTRAINT [FK_AspNetUserTokens_AspNetUsers_UserId]
+GO
+ALTER TABLE [dbo].[Branches]  WITH CHECK ADD  CONSTRAINT [FK_Branches_AspNetUsers_ManagerId] FOREIGN KEY([ManagerId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+GO
+ALTER TABLE [dbo].[Branches] CHECK CONSTRAINT [FK_Branches_AspNetUsers_ManagerId]
+GO
+ALTER TABLE [dbo].[Items]  WITH CHECK ADD  CONSTRAINT [FK_Items_Suppliers_SupplierId] FOREIGN KEY([SupplierId])
+REFERENCES [dbo].[Suppliers] ([Id])
+GO
+ALTER TABLE [dbo].[Items] CHECK CONSTRAINT [FK_Items_Suppliers_SupplierId]
+GO
+ALTER TABLE [dbo].[LedgerEntries]  WITH CHECK ADD  CONSTRAINT [FK_LedgerEntries_AspNetUsers_CreatedByUserId] FOREIGN KEY([CreatedByUserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[LedgerEntries] CHECK CONSTRAINT [FK_LedgerEntries_AspNetUsers_CreatedByUserId]
+GO
+ALTER TABLE [dbo].[LedgerEntries]  WITH CHECK ADD  CONSTRAINT [FK_LedgerEntries_Branches_BranchId] FOREIGN KEY([BranchId])
+REFERENCES [dbo].[Branches] ([Id])
+GO
+ALTER TABLE [dbo].[LedgerEntries] CHECK CONSTRAINT [FK_LedgerEntries_Branches_BranchId]
+GO
+ALTER TABLE [dbo].[PurchaseInvoiceItems]  WITH CHECK ADD  CONSTRAINT [FK_PurchaseInvoiceItems_Items_ItemId] FOREIGN KEY([ItemId])
+REFERENCES [dbo].[Items] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[PurchaseInvoiceItems] CHECK CONSTRAINT [FK_PurchaseInvoiceItems_Items_ItemId]
+GO
+ALTER TABLE [dbo].[PurchaseInvoiceItems]  WITH CHECK ADD  CONSTRAINT [FK_PurchaseInvoiceItems_PurchaseInvoices_PurchaseInvoiceId] FOREIGN KEY([PurchaseInvoiceId])
+REFERENCES [dbo].[PurchaseInvoices] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[PurchaseInvoiceItems] CHECK CONSTRAINT [FK_PurchaseInvoiceItems_PurchaseInvoices_PurchaseInvoiceId]
+GO
+ALTER TABLE [dbo].[PurchaseInvoices]  WITH CHECK ADD  CONSTRAINT [FK_PurchaseInvoices_AspNetUsers_CreatedByUserId] FOREIGN KEY([CreatedByUserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[PurchaseInvoices] CHECK CONSTRAINT [FK_PurchaseInvoices_AspNetUsers_CreatedByUserId]
+GO
+ALTER TABLE [dbo].[PurchaseInvoices]  WITH CHECK ADD  CONSTRAINT [FK_PurchaseInvoices_Suppliers_SupplierId] FOREIGN KEY([SupplierId])
+REFERENCES [dbo].[Suppliers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[PurchaseInvoices] CHECK CONSTRAINT [FK_PurchaseInvoices_Suppliers_SupplierId]
+GO
+ALTER TABLE [dbo].[SalesInvoiceItems]  WITH CHECK ADD  CONSTRAINT [FK_SalesInvoiceItems_Items_ItemId] FOREIGN KEY([ItemId])
+REFERENCES [dbo].[Items] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[SalesInvoiceItems] CHECK CONSTRAINT [FK_SalesInvoiceItems_Items_ItemId]
+GO
+ALTER TABLE [dbo].[SalesInvoiceItems]  WITH CHECK ADD  CONSTRAINT [FK_SalesInvoiceItems_SalesInvoices_SalesInvoiceId] FOREIGN KEY([SalesInvoiceId])
+REFERENCES [dbo].[SalesInvoices] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[SalesInvoiceItems] CHECK CONSTRAINT [FK_SalesInvoiceItems_SalesInvoices_SalesInvoiceId]
+GO
+ALTER TABLE [dbo].[SalesInvoices]  WITH CHECK ADD  CONSTRAINT [FK_SalesInvoices_AspNetUsers_CreatedByUserId] FOREIGN KEY([CreatedByUserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[SalesInvoices] CHECK CONSTRAINT [FK_SalesInvoices_AspNetUsers_CreatedByUserId]
+GO
+ALTER TABLE [dbo].[SalesInvoices]  WITH CHECK ADD  CONSTRAINT [FK_SalesInvoices_Customers_CustomerId] FOREIGN KEY([CustomerId])
+REFERENCES [dbo].[Customers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[SalesInvoices] CHECK CONSTRAINT [FK_SalesInvoices_Customers_CustomerId]
+GO
+ALTER TABLE [dbo].[StockMovements]  WITH CHECK ADD  CONSTRAINT [FK_StockMovements_AspNetUsers_CreatedByUserId] FOREIGN KEY([CreatedByUserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[StockMovements] CHECK CONSTRAINT [FK_StockMovements_AspNetUsers_CreatedByUserId]
+GO
+ALTER TABLE [dbo].[StockMovements]  WITH CHECK ADD  CONSTRAINT [FK_StockMovements_Products_ProductId] FOREIGN KEY([ProductId])
+REFERENCES [dbo].[Products] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[StockMovements] CHECK CONSTRAINT [FK_StockMovements_Products_ProductId]
+GO
+ALTER TABLE [dbo].[StockTakings]  WITH CHECK ADD  CONSTRAINT [FK_StockTakings_Products_ProductId] FOREIGN KEY([ProductId])
+REFERENCES [dbo].[Products] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[StockTakings] CHECK CONSTRAINT [FK_StockTakings_Products_ProductId]
+GO

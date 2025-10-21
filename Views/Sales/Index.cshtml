@@ -1,0 +1,176 @@
+@model SalesListViewModel
+@{
+    ViewData["Title"] = "Sales Overview";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Sales Overview</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Sales</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div>
+                <i class="bi bi-cash-stack me-1"></i>
+                Sales Management
+            </div>
+            <a asp-action="Create" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg"></i> New Sale
+            </a>
+        </div>
+        <div class="card-body">
+            <!-- Filter Form -->
+            <form method="get" id="filterForm" class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="startDate" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" />
+                </div>
+                <div class="col-md-3">
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="endDate" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" />
+                </div>
+                <div class="col-md-4">
+                    <label for="searchTerm" class="form-label">Search</label>
+                    <input type="text" class="form-control" id="searchTerm" name="searchTerm" value="@Model.SearchTerm" 
+                           placeholder="Search by invoice number, customer name..." />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Filter
+                    </button>
+                </div>
+            </form>
+
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">Total Sales Amount</h6>
+                            <h3 class="text-primary mb-0">@Model.TotalAmount.ToString("C")</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">Total Sales Count</h6>
+                            <h3 class="text-primary mb-0">@Model.TotalSales</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Table -->
+            <table id="salesTable" class="table table-striped table-bordered sales-datatable" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Total Amount</th>
+                        <th>Created By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sale in Model.Sales)
+                    {
+                        <tr>
+                                <td>
+                                    <a href="/Sales/Index" class="text-primary" title="Open Sales Index">@sale.InvoiceNumber</a>
+                                </td>
+                                <td>@sale.Date.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>@(sale.Customer?.Name ?? "Walk-in Customer")</td>
+                                <td>@sale.SalesInvoiceItems.Count</td>
+                                <td>
+                                    <div>@sale.TotalAmount.ToString("C")</div>
+                                    <small class="text-muted">الإجمالي</small>
+                                </td>
+                                <td>
+                                    <div>@sale.PaidAmount.ToString("C")</div>
+                                    <small class="text-muted">المبلغ المحصل</small>
+                                </td>
+                                <td>@sale.CreatedByUser?.UserName</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a asp-action="Details" asp-route-id="@sale.Id" class="btn btn-info btn-sm">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @if (sale.SalesInvoiceItems.Count > 1)
+                                    {
+                                        <a asp-action="Details" asp-route-id="@sale.Id" class="btn btn-secondary btn-sm" title="View All Items">
+                                            <i class="bi bi-list-ul"></i> Items
+                                        </a>
+                                    }
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@sale.Id" class="btn btn-warning btn-sm">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteSale(@sale.Id)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
+                                </div>
+                                @* Status badge: show Partial if paid < total *@
+                                @if (sale.PaidAmount < sale.TotalAmount)
+                                {
+                                    <span class="badge bg-warning ms-2">جزئي</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success ms-2">مدفوع</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Date range constraints only
+        $(document).ready(function () {
+            if ($('#startDate').val()) {
+                $('#endDate').attr('min', $('#startDate').val());
+            }
+            if ($('#endDate').val()) {
+                $('#startDate').attr('max', $('#endDate').val());
+            }
+        });
+        $('#startDate').change(function() {
+            $('#endDate').attr('min', $(this).val());
+        });
+        $('#endDate').change(function() {
+            $('#startDate').attr('max', $(this).val());
+        });
+        function deleteSale(id) {
+            if (confirm('Are you sure you want to delete this sale? This action cannot be undone.')) {
+                $.ajax({
+                    url: '@Url.Action("Delete")/' + id,
+                    type: 'POST',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (result) {
+                        if (result.success) {
+                            location.reload();
+                        } else {
+                            alert('Error deleting sale: ' + result.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Error occurred while deleting the sale');
+                    }
+                });
+            }
+        }
+    </script>
+}

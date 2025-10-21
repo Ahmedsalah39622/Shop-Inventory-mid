@@ -1,0 +1,321 @@
+@model ShopInventory.Models.SalesInvoice
+@{
+    ViewData["Title"] = "New Sale";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Sales")">Sales</a></li>
+            <li class="breadcrumb-item active">New Sale</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-shopping-cart me-2"></i> Sale Items
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <input type="text" id="productSearch" class="form-control" placeholder="Search products...">
+                    </div>
+
+                    <div class="products-grid">
+                        @foreach (var item in ViewBag.Items)
+                        {
+                            <div class="product-card">
+                                <div class="product-icon">
+                                    <i class="fas fa-box fa-3x"></i>
+                                </div>
+                                <div class="product-info">
+                                    <h5>@item.Name</h5>
+                                    <div class="product-details">
+                                        <span>Code: @item.Code</span>
+                                        <span class="price">@item.SalePrice.ToString("C2")</span>
+                                    </div>
+                                    <div class="stock-info">Stock: @item.Quantity</div>
+                                    <button type="button" class="btn btn-primary add-to-cart w-100"
+                                            data-id="@item.Id"
+                                            data-name="@item.Name"
+                                            data-price="@item.SalePrice"
+                                            data-stock="@item.Quantity">
+                                        <i class="fas fa-plus me-1"></i> Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="shopping-cart">
+                            <div class="table-responsive">
+                                <table class="table" id="cartTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Unit Price</th>
+                                            <th>Quantity</th>
+                                            <th>Total</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <form id="saleForm" asp-action="Create" method="post">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-file-invoice me-2"></i> Invoice Details
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Invoice Number</label>
+                            <input asp-for="InvoiceNumber" class="form-control" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Customer</label>
+                            <select asp-for="CustomerId" class="form-select">
+                                <option value="">-- Select Customer --</option>
+                                @foreach(var customer in ((SelectList)ViewBag.Customers).Items)
+                                {
+                                    <option value="@(((dynamic)customer).Id)">@(((dynamic)customer).Name)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Total Amount</label>
+                            <input type="text" id="totalDisplay" class="form-control" readonly />
+                            <input type="hidden" asp-for="TotalAmount" id="totalAmount" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PaidAmount" class="form-label">Amount Paid</label>
+                            <input asp-for="PaidAmount" class="form-control" type="number" step="0.01" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Balance</label>
+                            <input type="text" id="balanceDisplay" class="form-control" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Notes" class="form-label">Notes</label>
+                            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check me-1"></i> Complete Sale
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+@section Styles {
+    <style>
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+
+        .product-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .product-image {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #6c757d;
+        }
+
+        .product-details {
+            text-align: center;
+        }
+
+        .product-name {
+            margin: 0;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .stock {
+            font-size: 0.9rem;
+            color: #28a745;
+            margin-bottom: 0.5rem;
+        }
+
+        .add-to-cart {
+            width: 100%;
+        }
+
+        #productSearch {
+            border-radius: 2rem;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        #productSearch:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Handle adding items
+            $(document).on('click', '.add-to-cart', function (e) {
+                e.stopPropagation();
+                var card = $(this).closest('.product-card');
+                var id = card.data('id');
+                var name = card.data('name');
+                var price = card.data('price');
+                var stock = card.data('stock');
+
+                addItemToSale(id, name, price, stock);
+            });
+
+            // Initialize search box with debounce
+            var searchTimeout;
+            $('#productSearch').on('input', function () {
+                clearTimeout(searchTimeout);
+                var searchBox = $(this);
+                searchTimeout = setTimeout(function() {
+                    var searchTerm = searchBox.val().toLowerCase();
+                    $('.product-card').each(function () {
+                        var card = $(this);
+                        var name = card.data('name').toLowerCase();
+                        var code = card.data('code').toLowerCase();
+                        if (name.includes(searchTerm) || code.includes(searchTerm)) {
+                            card.fadeIn(200);
+                        } else {
+                            card.fadeOut(200);
+                        }
+                    });
+                }, 300);
+            });
+
+            // Handle quantity changes
+            $(document).on('change', '.item-quantity', function () {
+                updateTotals();
+            });
+
+            // Handle removing items
+            $(document).on('click', '.remove-item', function () {
+                $(this).closest('tr').remove();
+                updateTotals();
+            });
+
+            // Handle paid amount changes
+            $('#PaidAmount').on('input', function () {
+                updateBalance();
+            });
+
+            // Initialize
+            updateTotals();
+        });
+
+        function addItemToSale(id, name, price, stock) {
+            // Check if item already exists
+            var existingRow = $(`tr[data-id="${id}"]`);
+            if (existingRow.length > 0) {
+                var qtyInput = existingRow.find('.item-quantity');
+                var currentQty = parseFloat(qtyInput.val());
+                qtyInput.val(currentQty + 1).trigger('change');
+                return;
+            }
+
+            // Add new row
+            var newRow = `
+                <tr data-id="${id}">
+                    <td>${name}
+                        <input type="hidden" name="SalesInvoiceItems[${$('#saleItems tbody tr').length}].ItemId" value="${id}">
+                    </td>
+                    <td>${price.toFixed(2)}
+                        <input type="hidden" name="SalesInvoiceItems[${$('#saleItems tbody tr').length}].UnitPrice" value="${price}">
+                    </td>
+                    <td>
+                        <input type="number" name="SalesInvoiceItems[${$('#saleItems tbody tr').length}].Quantity"
+                               class="form-control item-quantity" value="1" min="1" max="${stock}" step="1">
+                    </td>
+                    <td class="item-total">${price.toFixed(2)}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm remove-item">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </td>
+                </tr>`;
+
+            $('#saleItems tbody').append(newRow);
+            updateTotals();
+        }
+
+        function updateTotals() {
+            var total = 0;
+            $('#saleItems tbody tr').each(function () {
+                var price = parseFloat($(this).find('td:eq(1)').text());
+                var quantity = parseFloat($(this).find('.item-quantity').val());
+                var itemTotal = price * quantity;
+                $(this).find('.item-total').text(itemTotal.toFixed(2));
+                total += itemTotal;
+            });
+
+            $('#totalAmount').text(total.toFixed(2));
+            $('#totalAmountInput').val(total);
+            updateBalance();
+        }
+
+        function updateBalance() {
+            var total = parseFloat($('#totalAmountInput').val()) || 0;
+            var paid = parseFloat($('#PaidAmount').val()) || 0;
+            var balance = total - paid;
+            $('#balanceDisplay').val(balance.toFixed(2));
+        }
+    </script>
+}

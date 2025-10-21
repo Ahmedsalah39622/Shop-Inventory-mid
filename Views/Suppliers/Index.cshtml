@@ -1,0 +1,118 @@
+@model IEnumerable<ShopInventory.Models.Supplier>
+
+@{
+    ViewData["Title"] = "Suppliers";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">الموردين</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">الموردين</li>
+    </ol>
+
+    <!-- Add Supplier Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white d-flex align-items-center py-3">
+            <div class="section-header" style="gap:1rem;">
+                <i class="fas fa-user-plus" style="font-size:1.5rem;color:#3b82f6;"></i>
+                <h5 class="card-title mb-0">إضافة مورد جديد</h5>
+            </div>
+        </div>
+        <div class="card-body">
+            <form asp-controller="Suppliers" asp-action="Create" method="post">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="SupplierName" class="form-label">اسم المورد</label>
+                        <input type="text" class="form-control" id="SupplierName" name="Name" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="SupplierPhone" class="form-label">رقم الهاتف</label>
+                        <input type="text" class="form-control" id="SupplierPhone" name="Phone" />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="SupplierAddress" class="form-label">العنوان</label>
+                        <input type="text" class="form-control" id="SupplierAddress" name="Address" />
+                    </div>
+                </div>
+                <div class="mt-3 text-end">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-plus"></i> إضافة المورد
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-truck me-1"></i>
+                Suppliers List
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="suppliersTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Balance</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var supplier in Model)
+                    {
+                        <tr>
+                            <td>@supplier.Name</td>
+                            <td>@supplier.Phone</td>
+                            <td>@supplier.Email</td>
+                            <td>@supplier.Address</td>
+                            <td>@supplier.Balance.ToString("C2")</td>
+                            <td>
+                                @if (supplier.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Edit" asp-route-id="@supplier.Id" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@supplier.Id" class="btn btn-info btn-sm">
+                                        <i class="fas fa-info-circle"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            if (!$.fn.DataTable.isDataTable('#suppliersTable')) {
+                $('#suppliersTable').DataTable({
+                    "order": [[0, "asc"]],
+                    "pageLength": 25,
+                    "columnDefs": [
+                        { "orderable": false, "targets": 6 }
+                    ]
+                });
+            }
+        });
+    </script>
+}

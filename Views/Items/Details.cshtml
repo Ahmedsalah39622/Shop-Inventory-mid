@@ -1,0 +1,61 @@
+@model ShopInventory.Models.Item
+@{
+    ViewData["Title"] = "تفاصيل المنتج";
+    Layout = "_DashboardLayout";
+}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">تفاصيل المنتج</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index">المنتجات</a></li>
+        <li class="breadcrumb-item active">تفاصيل المنتج</li>
+    </ol>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-box me-1"></i>
+                    معلومات المنتج
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">الكود</dt>
+                        <dd class="col-sm-8">@Model.Code</dd>
+                        <dt class="col-sm-4">الباركود</dt>
+                        <dd class="col-sm-8">@Model.Barcode</dd>
+                        <dt class="col-sm-4">الاسم</dt>
+                        <dd class="col-sm-8">@Model.Name</dd>
+                        <dt class="col-sm-4">الفئة</dt>
+                        <dd class="col-sm-8">@Model.Category</dd>
+                        <dt class="col-sm-4">الوحدة</dt>
+                        <dd class="col-sm-8">@Model.Unit</dd>
+                        <dt class="col-sm-4">سعر الشراء</dt>
+                        <dd class="col-sm-8">@Model.PurchasePrice.ToString("C2")</dd>
+                        <dt class="col-sm-4">سعر البيع</dt>
+                        <dd class="col-sm-8">@Model.SalePrice.ToString("C2")</dd>
+                        <dt class="col-sm-4">الكمية</dt>
+                        <dd class="col-sm-8">@Model.Quantity</dd>
+                        <dt class="col-sm-4">مستوى إعادة الطلب</dt>
+                        <dd class="col-sm-8">@Model.ReorderLevel</dd>
+                        <dt class="col-sm-4">المورد</dt>
+                        <dd class="col-sm-8">@Model.Supplier?.Name</dd>
+                        <dt class="col-sm-4">تاريخ الانتهاء</dt>
+                        <dd class="col-sm-8">@Model.ExpiryDate?.ToString("yyyy-MM-dd")</dd>
+                        <dt class="col-sm-4">الحالة</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">نشط</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">غير نشط</span>
+                            }
+                        </dd>
+                    </dl>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">تعديل</a>
+                    <a asp-action="Index" class="btn btn-secondary">العودة إلى القائمة</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

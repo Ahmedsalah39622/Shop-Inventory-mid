@@ -1,0 +1,138 @@
+@model ShopInventory.Models.SalesInvoice
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Invoice #@Model.InvoiceNumber</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .invoice-header h1 {
+            margin: 0;
+            color: #333;
+        }
+        .invoice-details {
+            margin-bottom: 20px;
+        }
+        .invoice-details table {
+            width: 100%;
+        }
+        .invoice-details td {
+            padding: 5px;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .items-table th, .items-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .items-table th {
+            background-color: #f8f9fa;
+        }
+        .totals {
+            float: right;
+            width: 300px;
+        }
+        .totals table {
+            width: 100%;
+        }
+        .totals td {
+            padding: 5px;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+        @@media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-header">
+        <h1>SALES INVOICE</h1>
+        <p>Invoice #@Model.InvoiceNumber</p>
+    </div>
+
+    <div class="invoice-details">
+        <table>
+            <tr>
+                <td><strong>Date:</strong></td>
+                <td>@Model.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                <td><strong>Customer:</strong></td>
+                <td>@(Model.Customer?.Name ?? "Walk-in Customer")</td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.SalesInvoiceItems)
+            {
+                <tr>
+                    <td>@item.Item?.Name</td>
+                    <td>@item.UnitPrice.ToString("C2")</td>
+                    <td>@item.Quantity</td>
+                    <td>@((item.UnitPrice * item.Quantity).ToString("C2"))</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <table>
+            <tr>
+                <td><strong>Total Amount:</strong></td>
+                <td>@Model.TotalAmount.ToString("C2")</td>
+            </tr>
+            <tr>
+                <td><strong>Paid Amount:</strong></td>
+                <td>@Model.PaidAmount.ToString("C2")</td>
+            </tr>
+            <tr>
+                <td><strong>Balance:</strong></td>
+                <td>@Model.Balance.ToString("C2")</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>Thank you for your business!</p>
+        <p class="no-print">
+            <button onclick="window.print();" class="no-print">Print Invoice</button>
+        </p>
+    </div>
+
+    <script>
+        // Automatically trigger print dialog when the page loads
+        window.onload = function() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

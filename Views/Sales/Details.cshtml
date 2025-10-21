@@ -1,0 +1,381 @@
+@model ShopInventory.Models.SalesInvoice
+
+@{
+    ViewData["Title"] = "نظرة عامة على المبيعات";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid px-4" dir="rtl">
+    <div class="mb-4">
+        <h1 class="mt-4">نظرة عامة على المبيعات</h1>
+        
+        <!-- Cards Row -->
+        <div class="row g-4 mt-2">
+            <!-- عدد حسب الفئات Card -->
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="text-primary mb-3">
+                            <i class="far fa-file-alt fa-2x"></i>
+                        </div>
+                        <h3 class="display-4 fw-bold text-primary mb-2">23</h3>
+                        <div class="text-muted">عدد حسب الفئات</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- إجمالي حسب الفئات Card -->
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="text-primary mb-3">
+                            <i class="fas fa-shopping-cart fa-2x"></i>
+                        </div>
+                        <div class="text-end mb-1">
+                            <span class="badge bg-info">اليوم</span>
+                        </div>
+                        <h3 class="display-4 fw-bold text-primary mb-2">$188,393.00</h3>
+                        <div class="text-muted">إجمالي حسب الفئات</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- إجمالي اليوم Card -->
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="text-primary mb-3">
+                            <i class="fas fa-dollar-sign fa-2x"></i>
+                        </div>
+                        <h3 class="display-4 fw-bold text-primary mb-2">$188,393.00</h3>
+                        <div class="text-muted">إجمالي اليوم</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+        <div>
+            <h2 class="mb-1">تفاصيل البيع</h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-action="Index">المبيعات</a></li>
+                <li class="breadcrumb-item active">تفاصيل</li>
+            </ol>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Print" asp-route-id="@Model.Id" class="btn btn-primary" target="_blank">
+                <i class="fas fa-print me-1"></i> طباعة الفاتورة
+            </a>
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                    <i class="fas fa-edit me-1"></i> تعديل
+                </a>
+                <button onclick="deleteSale(@Model.Id)" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i> حذف
+                </button>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-file-invoice me-1"></i>
+                    معلومات الفاتورة
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="p-3 border rounded bg-light">
+                                <div class="small text-muted">رقم الفاتورة</div>
+                                <div class="h5 mb-0">@Model.InvoiceNumber</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 border rounded">
+                                <div class="small text-muted">تاريخ البيع</div>
+                                <div>@Model.Date.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 border rounded">
+                                <div class="small text-muted">العميل</div>
+                                <div>@(Model.Customer?.Name ?? "عميل نقدي")</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 border rounded">
+                                <div class="small text-muted">البائع</div>
+                                <div>@Model.CreatedByUser?.FullName</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <!-- كارت باقي النقود للعملاء -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-info text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-hand-holding-usd me-1"></i>
+                                    باقي النقود للعملاء
+                                </div>
+                                @if (ViewBag.TotalReturnedToday != null)
+                                {
+                                    <div class="badge bg-warning text-dark">اليوم</div>
+                                }
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.PaidAmount > Model.TotalAmount)
+                            {
+                                <div class="alert alert-warning mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-exclamation-circle fs-3 me-3"></i>
+                                        <div>
+                                            <div class="fw-bold">مبلغ للإرجاع</div>
+                                            <div class="h4 mb-0">@((Model.PaidAmount - Model.TotalAmount).ToString("C2"))</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            <div class="text-center">
+                                <small class="text-muted d-block mb-1">إجمالي المبالغ المرتجعة للعملاء اليوم</small>
+                                <div class="h5">@(ViewBag.TotalReturnedToday?.ToString("C2") ?? "0.00")</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- كارت عدد المبيعات -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-primary text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-shopping-cart me-1"></i>
+                                    عدد المبيعات
+                                </div>
+                                <div class="badge bg-light text-dark">اليوم</div>
+                            </div>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="h1 mb-0">@(ViewBag.TotalSalesCount ?? 0)</div>
+                            <small class="text-muted">عملية بيع اليوم</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- كارت الربح الصافي -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-success text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-chart-line me-1"></i>
+                                    الربح الصافي
+                                </div>
+                                <div class="badge bg-light text-dark">اليوم</div>
+                            </div>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="h3 mb-0 text-success">@(ViewBag.DailyNetProfit?.ToString("C2") ?? "0.00")</div>
+                            <small class="text-muted">صافي الربح بعد خصم التكاليف والمرتجعات</small>
+                            
+                            @if (ViewBag.ProfitPercentage != null)
+                            {
+                                <div class="mt-2">
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-chart-bar me-1"></i>
+                                        نسبة الربح: @(ViewBag.ProfitPercentage)%
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- كارت إجمالي المبيعات -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-info text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-dollar-sign me-1"></i>
+                                    إجمالي المبيعات
+                                </div>
+                                <div class="badge bg-light text-dark">اليوم</div>
+                            </div>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="h3 mb-0">@(ViewBag.TotalSalesAmount?.ToString("C2") ?? "0.00")</div>
+                            <small class="text-muted">قيمة المبيعات الكلية اليوم</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-money-bill me-1"></i>
+                    معلومات الدفع
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="p-3 border rounded">
+                                <div class="small text-muted">قيمة المنتجات</div>
+                                <div class="h4 mb-0 text-success">
+                                    @(Model.SalesInvoiceItems.Sum(item => item.UnitPrice * item.Quantity).ToString("C2"))
+                                </div>
+                            </div>
+                        </div>
+                        @if (Model.PaidAmount != Model.TotalAmount)
+                        {
+                            <div class="col-12">
+                                <div class="p-3 border rounded bg-light">
+                                    <div class="small text-muted mb-1">معلومات الدفع</div>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <div class="text-muted">المبلغ المستلم:</div>
+                                            <div>@Model.PaidAmount.ToString("C2")</div>
+                                        </div>
+                                        @if (Model.PaidAmount > Model.TotalAmount)
+                                        {
+                                            <div class="col-6">
+                                                <div class="text-danger">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                                    يجب إرجاع:
+                                                </div>
+                                                <strong class="text-danger">@((Model.PaidAmount - Model.TotalAmount).ToString("C2"))</strong>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="col-12">
+                            <div class="p-3 border rounded">
+                                <div class="small text-muted">طريقة الدفع</div>
+                                <div>@Model.PaymentMethod.ToString()</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 border rounded">
+                                <div class="small text-muted">نوع الفاتورة</div>
+                                <div>
+                                    @{
+                                        var isCashInvoice = Model.InvoiceType.ToString().ToLower() == "cash";
+                                    }
+                                    <span class="badge @(isCashInvoice ? "bg-success" : "bg-warning")">
+                                        @(isCashInvoice ? "نقدي" : "آجل")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <i class="fas fa-shopping-cart me-1"></i>
+                    تفاصيل الأصناف
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Code</th>
+                                    <th>السعر</th>
+                                    <th>الكمية</th>
+                                    <th>الإجمالي</th>
+                                    <th>إزالة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.SalesInvoiceItems.Select((value, i) => new { value, i }))
+                                {
+                                    <tr>
+                                        <td>@item.value.Item?.Name</td>
+                                        <td>@item.value.Item?.Code</td>
+                                        <td class="text-end">@item.value.UnitPrice.ToString("C2")</td>
+                                        <td class="text-center">@item.value.Quantity</td>
+                                        <td class="text-end">@((item.value.UnitPrice * item.value.Quantity).ToString("C2"))</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-danger" disabled>
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-start"><strong>إجمالي قيمة المنتجات:</strong></td>
+                                    <td class="text-end">
+                                        <strong>@(Model.SalesInvoiceItems.Sum(item => item.UnitPrice * item.Quantity).ToString("C2"))</strong>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                @if (Model.PaidAmount > Model.TotalAmount)
+                                {
+                                    <tr class="bg-light text-secondary" style="font-size: 0.9em;">
+                                        <td colspan="6" class="text-center">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            تم تسجيل قيمة المنتجات فقط في السجلات المالية
+                                        </td>
+                                    </tr>
+                                }
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Notes))
+                    {
+                        <div class="mt-3">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>ملاحظات:</strong><br />
+                                @Model.Notes
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function deleteSale(id) {
+            if (confirm('هل أنت متأكد من حذف هذا البيع؟')) {
+                $.ajax({
+                    url: '/Sales/Delete/' + id,
+                    type: 'POST',
+                    success: function (result) {
+                        if (result.success) {
+                            window.location.href = '/Sales';
+                        } else {
+                            alert('خطأ: ' + result.message);
+                        }
+                    },
+                    error: function () {
+                        alert('حدث خطأ أثناء الحذف');
+                    }
+                });
+            }
+        }
+    </script>
+}

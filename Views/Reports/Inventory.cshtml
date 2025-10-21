@@ -1,0 +1,128 @@
+@{
+    var isPrint = Context.Request.Query["print"] == "true";
+    Layout = isPrint ? null : "_DashboardLayout";
+}
+@if (isPrint)
+{
+    <style>
+        body { background: #fff !important; font-family: 'Cairo', 'Tahoma', Arial, sans-serif; direction: rtl; }
+        .print-header {
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; border-bottom: 2px solid #eee; padding-bottom: 1.5rem;
+            background: linear-gradient(90deg, #f8f9fa 0%, #e3f2fd 100%); border-radius: 16px 16px 0 0; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .print-logo {
+            height: 48px; margin-left: 1rem; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .print-title {
+            font-size: 2.2rem; font-weight: 800; color: #1677ff; letter-spacing: 1px; margin-right: 0.5rem;
+            text-shadow: 0 2px 8px rgba(22,119,255,0.08);
+        }
+        .print-date {
+            font-size: 1.1rem; color: #555; margin-top: 0.5rem; font-weight: 500;
+        }
+        .container-fluid { margin: 0; padding: 0; }
+        .card, .card-body, .card-header, .card-footer { border: none !important; box-shadow: none !important; }
+        h1, .table { margin-top: 0 !important; }
+        table.print-table {
+            width: 100%; border-collapse: collapse; margin-top: 2rem; font-size: 1.15rem; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(22,119,255,0.07);
+        }
+        table.print-table th, table.print-table td { border: 1px solid #d0d7de; padding: 14px 18px; text-align: center; }
+        table.print-table th {
+            background: #e3f2fd; font-weight: bold; font-size: 1.15rem; color: #1677ff; border-bottom: 2px solid #1677ff;
+        }
+        table.print-table tr:nth-child(even) { background: #f6f6f6; }
+        table.print-table tr:hover { background: #f0f7ff; }
+        table.print-table td { color: #222; font-size: 1.08rem; }
+    </style>
+    <script>window.onload = function() { window.print(); }</script>
+    <div class="print-header">
+        <div style="display:flex;align-items:center;">
+        </div>
+}
+else
+{
+    @if (!isPrint)
+    {
+        <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+            <h1 class="mb-0">Inventory Reports</h1>
+            <form method="get" class="d-flex align-items-center gap-2" style="margin-bottom:0;">
+                <label class="mb-0">من تاريخ:</label>
+                <input type="date" name="startDate" class="form-control form-control-sm" value="@Context.Request.Query["startDate"]" style="width: 150px;" />
+                <label class="mb-0">إلى تاريخ:</label>
+                <input type="date" name="endDate" class="form-control form-control-sm" value="@Context.Request.Query["endDate"]" style="width: 150px;" />
+                <button type="submit" class="btn btn-sm btn-primary">تصفية</button>
+                <button class="btn btn-outline-primary ms-2" type="button" onclick="printWithFilter()">
+                    <i class="fas fa-print"></i> طباعة
+                </button>
+                <a class="btn btn-outline-success ms-2" href="@Url.Action("ExportInventory", "Reports", new { startDate = Context.Request.Query["startDate"], endDate = Context.Request.Query["endDate"], format = "excel" })">
+                    <i class="fas fa-file-excel"></i> تصدير Excel
+                </a>
+                <a class="btn btn-outline-danger ms-2" href="@Url.Action("ExportInventory", "Reports", new { startDate = Context.Request.Query["startDate"], endDate = Context.Request.Query["endDate"], format = "pdf" })">
+                    <i class="fas fa-file-pdf"></i> تصدير PDF
+                </a>
+            </form>
+            <script>
+                function printWithFilter() {
+                    const params = new URLSearchParams(window.location.search);
+                    params.set('print', 'true');
+                    window.open(window.location.pathname + '?' + params.toString(), '_blank');
+                }
+            </script>
+        </div>
+    }
+        <script>
+            function printWithFilter() {
+                const params = new URLSearchParams(window.location.search);
+                params.set('print', 'true');
+                window.open(window.location.pathname + '?' + params.toString(), '_blank');
+            }
+        </script>
+    </div>
+}
+
+@model IEnumerable<ShopInventory.Models.Item>
+@{
+    ViewData["Title"] = "Inventory Reports";
+    Layout = "_DashboardLayout";
+}
+<div class="container-fluid px-4">
+    @if (!isPrint)
+    {
+        <h1 class="mt-4">Inventory Reports</h1>
+    }
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="@(isPrint ? "print-table" : "table table-bordered table-hover align-middle")">
+                    <thead class="table-light">
+                        <tr>
+                            <th>كود المنتج</th>
+                            <th>اسم المنتج</th>
+                            <th>التصنيف</th>
+                            <th>الوحدة</th>
+                            <th>الكمية</th>
+                            <th>سعر الشراء</th>
+                            <th>سعر البيع</th>
+                            <th>المورد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Code</td>
+                                <td>@item.Name</td>
+                                <td>@item.Category</td>
+                                <td>@item.Unit</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.PurchasePrice.ToString("N2")</td>
+                                <td>@item.SalePrice.ToString("N2")</td>
+                                <td>@item.Supplier?.Name</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

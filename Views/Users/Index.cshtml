@@ -1,0 +1,132 @@
+@model IEnumerable<ShopInventory.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "Users";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">المستخدمين</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">إدارة المستخدمين</li>
+    </ol>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <h4>@Model.Count()</h4>
+                    إجمالي المستخدمين
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                        <h4>N/A</h4>
+                        المستخدمين النشطين
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                        <h4>N/A</h4>
+                        المسؤولون
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white mb-4">
+                <div class="card-body">
+                        <h4>N/A</h4>
+                        أمين الصندوق
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-users-cog me-1"></i>
+                قائمة المستخدمين
+            </div>
+            <div>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Create" class="btn btn-primary btn-sm">
+                        <i class="fas fa-user-plus"></i> إضافة مستخدم جديد
+                    </a>
+                }
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="usersTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>الاسم</th>
+                        <th>اسم المستخدم</th>
+                        <th>البريد الإلكتروني</th>
+                        <th>الدور</th>
+                        <th>آخر تسجيل دخول</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                                <td>@user.FullName</td>
+                                <td>@user.UserName</td>
+                                <td>@user.Email</td>
+                                <td>N/A</td>
+                                <td>N/A</td>
+                                <td>N/A</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                            // ...existing code...
+                                    }
+                                    <a asp-action="ResetPassword" asp-route-id="@user.Id" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-key"></i>
+                                    </a>
+                                    <a asp-action="ActivityLog" asp-route-id="@user.Id" class="btn btn-info btn-sm">
+                                        <i class="fas fa-history"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            if (!$.fn.DataTable.isDataTable('#usersTable')) {
+                $('#usersTable').DataTable({
+                    "order": [[0, "asc"]],
+                    "pageLength": 25,
+                    "columnDefs": [
+                        { "orderable": false, "targets": 6 }
+                    ]
+                });
+            }
+        });
+
+        function confirmDeactivate(userId, userName) {
+            if (confirm('Are you sure you want to deactivate user "' + userName + '"?')) {
+                window.location.href = '@Url.Action("Deactivate")/' + userId;
+            }
+        }
+    </script>
+}

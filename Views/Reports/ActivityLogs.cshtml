@@ -1,0 +1,74 @@
+@{
+    var isPrint = Context.Request.Query["print"] == "true";
+    Layout = isPrint ? null : "_DashboardLayout";
+}
+@if (isPrint)
+{
+    <style>
+        body { background: #fff !important; }
+        .container-fluid { margin: 0; padding: 0; }
+        .card, .card-body, .card-header, .card-footer { border: none !important; box-shadow: none !important; }
+        h1, .table { margin-top: 0 !important; }
+        table.print-table {
+            width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 1.05rem;
+        }
+        table.print-table th, table.print-table td { border: 1px solid #333; padding: 8px 14px; text-align: left; }
+        table.print-table th { background: #f2f2f2; font-weight: bold; }
+        table.print-table tr:nth-child(even) { background: #fafafa; }
+        table.print-table tr:hover { background: #e6f7ff; }
+    </style>
+    <script>window.onload = function() { window.print(); }</script>
+}
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+        <h1 class="mb-0">Activity Logs</h1>
+        <button class="btn btn-outline-primary" type="button" onclick="printWithFilter()">
+            <i class="fas fa-print"></i> Print
+        </button>
+        <script>
+            function printWithFilter() {
+                const params = new URLSearchParams(window.location.search);
+                params.set('print', 'true');
+                window.open(window.location.pathname + '?' + params.toString(), '_blank');
+            }
+        </script>
+    </div>
+
+@model IEnumerable<ShopInventory.Models.ActivityLog>
+@{
+    ViewData["Title"] = "Activity Logs";
+    Layout = "_DashboardLayout";
+}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Activity Logs</h1>
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="@(isPrint ? "print-table" : "table table-bordered table-hover align-middle")">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>Description</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td>@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td>@log.User?.UserName</td>
+                                <td>@log.Action</td>
+                                <td>@log.EntityName</td>
+                                <td>@log.Description</td>
+                                <td>@log.IpAddress</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

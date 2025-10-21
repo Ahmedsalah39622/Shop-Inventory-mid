@@ -1,0 +1,80 @@
+/* Slim Sidebar Styles */
+.sidebar {
+    width: 70px;
+    transition: width 0.3s ease;
+    overflow: hidden;
+}
+
+.sidebar:hover {
+    width: 240px;
+}
+
+.sidebar .nav-item {
+    white-space: nowrap;
+}
+
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: var(--bs-dark);
+    transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sidebar .nav-link.active {
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+.sidebar .nav-link i {
+    font-size: 1.25rem;
+    min-width: 30px;
+    text-align: center;
+}
+
+.sidebar .nav-link span {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar:hover .nav-link span {
+    opacity: 1;
+}
+
+/* Adjust main content margin */
+.main-content {
+    margin-right: 70px;
+    transition: margin 0.3s ease;
+}
+
+/* RTL specific adjustments */
+.sidebar {
+    right: 0;
+}
+
+.sidebar .nav-link i {
+    margin-left: 0.5rem;
+}
+
+.sidebar-heading {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+}
+
+.sidebar:hover .sidebar-heading {
+    opacity: 1;
+}
+
+/* Hide text initially */
+.nav-link-text {
+    display: none;
+}
+
+.sidebar:hover .nav-link-text {
+    display: inline;
+}

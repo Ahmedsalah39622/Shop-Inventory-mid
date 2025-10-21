@@ -1,0 +1,97 @@
+/* Compact, quality sidebar */
+.sidebar-vertical {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 180px;
+    background: #232332;
+    color: #fff;
+    border-right: 1px solid #232332;
+    transition: width 0.2s cubic-bezier(.4,0,.2,1);
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+}
+.sidebar-vertical.closed {
+    width: 64px;
+}
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    padding: 0 0.75rem;
+    background: #232332;
+    border-bottom: 1px solid #232332;
+}
+.sidebar-logo img {
+    width: 32px;
+    height: 32px;
+}
+.sidebar-title {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    white-space: nowrap;
+    transition: opacity 0.2s, width 0.2s;
+}
+.sidebar-vertical.closed .sidebar-title {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+}
+.sidebar-toggle {
+    background: none;
+    color: #fff;
+    border: none;
+    font-size: 1.2rem;
+    margin-left: auto;
+    cursor: pointer;
+    outline: none;
+    padding: 0.25rem 0.5rem;
+}
+.sidebar-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding-top: 0.5rem;
+}
+.sidebar-nav .nav-item {
+    margin-bottom: 0.25rem;
+}
+.sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: #fff;
+    border-radius: 0.5rem;
+    font-size: 0.98rem;
+    font-weight: 500;
+    transition: background 0.15s, color 0.15s;
+    min-width: 0;
+}
+.sidebar-nav .nav-link.active, .sidebar-nav .nav-link:hover {
+    background: #29293a;
+    color: #fff;
+}
+.sidebar-nav .nav-link i {
+    font-size: 1.15rem;
+    margin-right: 0.75rem;
+    min-width: 22px;
+    text-align: center;
+}
+.sidebar-vertical.closed .sidebar-label {
+    display: none !important;
+}
+.sidebar-label {
+    transition: opacity 0.2s;
+}
+@media (max-width: 768px) {
+    .sidebar-vertical {
+        left: -180px;
+        top: 0;
+    }
+    .sidebar-vertical.open {
+        left: 0;
+    }
+}

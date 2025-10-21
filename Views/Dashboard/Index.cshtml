@@ -1,0 +1,1607 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "لوحة التحكم";
+    Layout = "_DashboardLayout";
+}
+
+@section Styles {
+    <style>
+        /* Enhanced Empty State Cards */
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-height: 200px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.08);
+            border-color: rgba(0,0,0,0.12);
+        }
+
+        .stat-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(37,99,235,0.1) 100%);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: scale(1.1);
+        }
+
+        .stat-icon i {
+            font-size: 2rem;
+            color: #3b82f6;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon i {
+            transform: rotate(360deg);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0.5rem 0;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #4b5563;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-subtitle {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .stat-card.low-stock .stat-icon i {
+            animation: pulse 2s infinite;
+        }
+
+        .stat-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            background: rgba(239,68,68,0.1);
+            color: #ef4444;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .section-header i {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 1.25rem;
+        }
+
+        .section-header.quick-purchase i {
+            background: rgba(59,130,246,0.1);
+            color: #3b82f6;
+        }
+
+        .section-header.recent-purchases i {
+            background: rgba(16,185,129,0.1);
+            color: #10b981;
+        }
+
+        .section-header.quick-actions i {
+            background: rgba(245,158,11,0.1);
+            color: #f59e0b;
+        }
+
+        .section-header.top-selling i {
+            background: rgba(139,92,246,0.1);
+            color: #8b5cf6;
+        }
+
+        /* Card Variants */
+        .stat-card.active-items .stat-icon {
+            background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(37,99,235,0.1) 100%);
+        }
+        .stat-card.active-items .stat-icon i {
+            color: #3b82f6;
+        }
+        .stat-card.active-items:hover {
+            border-color: #3b82f6;
+        }
+
+        .stat-card.low-stock {
+            background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+        }
+        .stat-card.low-stock .stat-icon {
+            background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(220,38,38,0.1) 100%);
+            animation: pulse 2s infinite;
+        }
+        .stat-card.low-stock .stat-icon i {
+            color: #ef4444;
+            font-size: 2.5rem;
+        }
+        .stat-card.low-stock:hover {
+            border-color: #ef4444;
+        }
+        
+        @@keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Enhanced Card Styles */
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-card .icon {
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card .icon::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: currentColor;
+            opacity: 0.1;
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover .icon::after {
+            transform: scale(1.2);
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            color: var(--gray-800);
+        }
+
+        .stat-card .stat-label {
+            font-size: 1rem;
+            color: var(--gray-600);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .stat-card .stat-trend.trend-up {
+            color: var(--success);
+        }
+
+        .stat-card .icon-badge {
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+            border: 2px solid white;
+        }
+
+        .invoice-row.first {
+            cursor: pointer;
+            position: relative;
+        }
+        .invoice-row.first:hover {
+            background: #e0e7ff;
+        }
+        .invoice-row.first .dropdown-arrow {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            color: #6366f1;
+        }
+        .invoice-collapse {
+            transition: height 0.3s;
+        }
+        /* Invoice group styling for Recent Purchases table */
+        .invoice-row {
+            transition: background 0.2s;
+        }
+        .invoice-row.first {
+            background: #f3f4f6;
+            box-shadow: 0 2px 8px rgba(59,130,246,0.07);
+            border-top: 2px solid #e5e7eb;
+        }
+        .invoice-row.last {
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .invoice-row td, .invoice-row th {
+            vertical-align: middle;
+        }
+        .invoice-row.first td {
+            font-weight: 500;
+        }
+        .invoice-row td {
+            border-right: none !important;
+        }
+        .invoice-row td[rowspan] {
+            background: transparent;
+        }
+        :root {
+            --primary: #3b82f6;
+            --primary-light: #60a5fa;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--gray-100);
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+        }
+
+        /* RTL Specific Adjustments */
+        .stat-card .icon {
+            margin-left: 1rem;
+            margin-right: 0;
+        }
+
+        .bi {
+            margin-left: 0.5rem;
+            margin-right: 0;
+        }
+
+        .me-2 {
+            margin-left: 0.5rem !important;
+            margin-right: 0 !important;
+        }
+
+        .stat-trend i {
+            margin-left: 0.25rem;
+            margin-right: 0;
+        }
+
+        .product-box {
+            text-align: right;
+        }
+
+        .item-icon {
+            margin-left: 1rem;
+            margin-right: 0;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .welcome-text {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        @@keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        @@keyframes slideIn {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @@keyframes glowBorder {
+            0% { border-color: var(--gray-200); }
+            50% { border-color: var(--primary-light); }
+            100% { border-color: var(--gray-200); }
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, white 0%, #fafafa 100%);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            height: 100%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 2px solid var(--gray-200);
+            cursor: pointer;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card.highlight {
+            animation: pulse 1s ease-in-out;
+            border-color: var(--primary);
+        }
+
+        .stat-card .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1.25rem;
+            background: var(--gray-100);
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+        }
+
+        .stat-card:hover .icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .stat-card.primary .icon {
+            color: var(--primary);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.2) 100%);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+
+        .stat-card.success .icon {
+            color: var(--success);
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.2) 100%);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);
+        }
+
+        .stat-card.warning .icon {
+            color: var(--warning);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.2) 100%);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+        }
+
+        .stat-card.info .icon {
+            color: var(--primary-light);
+            background: linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(96, 165, 250, 0.2) 100%);
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.15);
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 0.75rem;
+            transition: color 0.3s ease;
+        }
+
+        .stat-card:hover .stat-label {
+            color: var(--primary);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--gray-800) 0%, var(--gray-700) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-trend {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+        }
+
+        .product-box {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1.5rem;
+            background: #fff;
+            transition: all 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, #0d6efd, #0dcaf0);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .product-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(13, 110, 253, 0.12);
+        }
+
+        .product-box:hover::before {
+            opacity: 1;
+        }
+
+        .item-icon {
+            font-size: 2.5rem;
+            color: #0d6efd;
+            margin-bottom: 1.25rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .product-box:hover .item-icon {
+            transform: scale(1.1);
+        }
+
+        .item-details {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .item-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            color: #212529;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        #quickSaleSection {
+            transition: all 0.35s ease;
+            overflow: hidden;
+        }
+
+        #quickSaleSection.collapsing {
+            height: 0;
+        }
+
+        #quickSaleSection.collapse.show {
+            height: auto;
+            overflow: visible;
+        }
+
+        @@keyframes highlightCart {
+            0% { transform: translateY(0); }
+            25% { transform: translateY(-5px); }
+            75% { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
+        }
+
+        .highlight-animation {
+            animation: highlightCart 0.5s ease-in-out;
+        }
+
+        .cart-panel {
+            position: sticky;
+            top: 1rem;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .add-to-cart {
+            transition: all 0.3s ease;
+            min-width: 80px;
+        }
+
+        .add-to-cart.btn-success,
+        .add-to-cart.btn-danger {
+            color: white;
+        }
+
+        .cart-wrapper {
+            position: sticky;
+            top: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            border: 1px solid #dee2e6;
+        }
+
+        .cart-content {
+            max-height: 400px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .cart-items {
+            padding: 1rem;
+        }
+
+        .cart-item {
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            background: white;
+        }
+
+        .cart-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .cart-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .cart-item-price {
+            color: #0d6efd;
+            font-weight: 600;
+        }
+
+        .cart-quantity {
+            width: 80px;
+        }
+
+        .cart-summary {
+            padding: 1rem;
+            background: #f8f9fa;
+        }
+
+        .cart-total {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0d6efd;
+        }
+
+        .empty-cart {
+            padding: 2rem;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .empty-cart i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+
+        .quantity-input {
+            width: 70px !important;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        .cart-empty {
+            padding: 2rem;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .cart-empty i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        #quickSaleBalance.positive {
+            color: #198754;
+        }
+
+        #quickSaleBalance.negative {
+            color: #dc3545;
+        }
+
+        .item-code {
+            color: #6c757d;
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .item-stock {
+            color: #198754;
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .item-stock i {
+            font-size: 0.75rem;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            border-top: 1px solid #e9ecef;
+            padding-top: 1rem;
+        }
+
+        .price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0d6efd;
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+        }
+
+        .price::before {
+            content: '$';
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .add-to-cart {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .add-to-cart:hover {
+            background: #0b5ed7;
+        }
+    </style>
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">لوحة التحكم</h1>
+
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card primary" data-stat="purchases" onclick="location.href='@Url.Action("Index", "Purchases")'">
+            <div class="icon" style="background:rgba(59,130,246,0.1);width:70px;height:70px;display:flex;align-items:center;justify-content:center;border-radius:50%;margin-bottom:1rem;position:relative;overflow:hidden;">
+                 <i class="fas fa-shopping-cart fa-2x" style="color:#3b82f6;" title="المبيعات اليوم"></i>
+                 <div class="icon-badge" style="position:absolute;top:0;right:0;background:#4CAF50;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-dollar-sign" style="color:white;font-size:0.8rem;"></i>
+                 </div>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">المبيعات اليوم</div>
+                <div class="stat-value">@Model.TotalSales.ToString("C")</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-chart-line"></i>
+                    <span>زيادة 12%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card success" data-stat="orders">
+            <div class="icon" style="background:rgba(34,197,94,0.1);width:70px;height:70px;display:flex;align-items:center;justify-content:center;border-radius:50%;margin-bottom:1rem;position:relative;overflow:hidden;">
+                 <i class="fas fa-clipboard-check fa-2x" style="color:#22c55e;" title="إجمالي الطلبات"></i>
+                 <div class="icon-badge" style="position:absolute;top:0;right:0;background:#FF9800;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-list" style="color:white;font-size:0.8rem;"></i>
+                 </div>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">إجمالي الطلبات</div>
+                <div class="stat-value">@Model.TotalOrders</div>
+                <div class="stat-trend trend-up">
+                    <i class="bi bi-arrow-up-right"></i>
+                    <span>اليوم</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card low-stock" data-stat="lowstock" onclick="location.href='@Url.Action("LowStock", "Items")'">
+            <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle fa-3x" style="color: #ef4444;"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-badge">تنبيه</div>
+                <div class="stat-value">@Convert.ToInt32(Model.LowStockCount)</div>
+                <div class="stat-label">الأصناف منخفضة المخزون</div>
+                <div class="stat-subtitle">تحتاج اهتمام</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card active-items" data-stat="active" onclick="location.href='@Url.Action("Index", "Items")'">
+            <div class="stat-icon">
+                <i class="fas fa-cubes"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value" id="activeItems">7</div>
+                <div class="stat-label">الأصناف النشطة</div>
+                <div class="stat-subtitle">في المخزون</div>
+                <div class="stat-trend">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <div class="section-header quick-purchase">
+                    <i class="fas fa-cart-plus"></i>
+                    <h5 class="card-title mb-0">البيع السريع</h5>
+                </div>
+            </div>
+            <div class="card-body" id="quickPurchasingSection">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <input type="text" id="quickSearchItems" class="form-control" placeholder="بحث عن الأصناف...">
+                        </div>
+                        <div class="products-grid mb-3">
+                            @foreach (var item in Model.Items)
+                            {
+                                <div class="product-box">
+                                    <div class="item-icon">
+                                        @if (item.Name.ToLower().Contains("printer")) {
+                                            <i class="bi bi-printer" title="Printer"></i>
+                                        } else if (item.Name.ToLower().Contains("mouse")) {
+                                            <i class="bi bi-mouse" title="Mouse"></i>
+                                        } else if (item.Name.ToLower().Contains("monitor")) {
+                                            <i class="bi bi-display" title="Monitor"></i>
+                                        } else if (item.Name.ToLower().Contains("laptop")) {
+                                            <i class="bi bi-laptop" title="Laptop"></i>
+                                        } else {
+                                            <i class="bi bi-box-seam" title="Item"></i>
+                                        }
+                                    </div>
+                                    <div class="item-details">
+                                        <h6 class="item-name">@item.Name</h6>
+                                        <div class="d-flex flex-column gap-2">
+                                            <span class="item-code">
+                                                <i class="bi bi-upc me-1"></i>@item.Code
+                                            </span>
+                                            <span class="item-stock">
+                                                <i class="bi bi-circle-fill @(item.Quantity > 0 ? "text-success" : "text-danger")"></i>
+                                                @(item.Quantity > 0 ? $"In Stock ({Convert.ToInt32(item.Quantity)})" : "Out of Stock")
+                                            </span>
+                                        </div>
+                                        <div class="price-row">
+                                            <span class="price">@item.SalePrice.ToString("#,##0.00")</span>
+                        <button class="btn btn-success btn-sm add-to-cart @(item.Quantity <= 0 ? "disabled" : "")" 
+                            data-id="@item.Id" 
+                            data-name="@item.Name" 
+                            data-price="@item.SalePrice" 
+                            data-stock="@Convert.ToInt32(item.Quantity)">
+                                                <i class="bi bi-bag-plus"></i> اضف الى العربة
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="clientSearch" class="form-label">اسم العميل</label>
+                            <input type="text" id="clientSearch" class="form-control mb-2" placeholder="البحث عن العملاء حسب الاسم...">
+                            <select id="clientDropdown" class="form-select">
+                                <option value="">اختر عميل</option>
+                                @foreach (var client in Model.Clients)
+                                {
+                                    <option value="@client.Id">@client.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="cart-wrapper">
+                            <div class="cart-header bg-success text-white p-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-cart4 me-2" title="عربة الشراء"></i>
+                                        <h5 class="mb-0">عربة الشراء</h5>
+                                    </div>
+                                    <span class="badge bg-white text-success" id="cartCount">0 items</span>
+                                </div>
+                            </div>
+                            <div class="cart-content">
+                                <div id="emptyCart" class="p-4 text-center">
+                                    <i class="bi bi-cart-x fs-1 text-muted mb-3" title="عربة فارغة"></i>
+                                    <p class="mb-1">عربتك فارغة</p>
+                                    <small class="text-muted">اضف عناصر إلى عربة التسوق</small>
+                                </div>
+                                <div id="cartItems" class="cart-items d-none">
+                                    <!-- Cart items will be added here -->
+                                </div>
+                            </div>
+                            <div id="cartSummaryContainer" class="cart-summary">
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-muted">المجموع الفرعي:</span>
+                                        <span id="cartSubtotal">$0.00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="fw-bold">المجموع:</span>
+                                        <span class="cart-total" id="cartTotal">$0.00</span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">المبلغ المدفوع</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" id="amountPaid" class="form-control" step="0.01" placeholder="0.00">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded mb-3">
+                                        <span>الرصيد:</span>
+                                        <span id="balance" class="fw-bold">$0.00</span>
+                                    </div>
+                                </div>
+                                <!-- Payment / Invoice selectors (visible in cart) -->
+                                <div class="mb-2">
+                                    <div class="row g-2 align-items-center">
+                                        <div class="col-6">
+                                            <label class="form-label mb-1">طريقة الدفع</label>
+                                            <select id="paymentMethodSelect" class="form-select form-select-sm">
+                                                <option value="Cash">نقداً</option>
+                                                <option value="Card">بطاقة</option>
+                                                <option value="BankTransfer">تحويل بنكي</option>
+                                                <option value="Installment">تقسيط</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label mb-1">نوع الفاتورة</label>
+                                            <select id="invoiceTypeSelect" class="form-select form-select-sm">
+                                                <option value="Retail">بيع تجزئة</option>
+                                                <option value="TaxInvoice">فاتورة ضريبية</option>
+                                                <option value="Credit">ائتمان</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="installmentFields" style="display:none;" class="mt-2">
+                                        <div class="input-group">
+                                            <span class="input-group-text">المقدم</span>
+                                            <input type="number" id="downPayment" class="form-control form-control-sm" step="0.01" min="0" value="0">
+                                            <span class="input-group-text">عدد شهور</span>
+                                            <input type="number" id="installmentMonths" class="form-control form-control-sm" min="1" value="3">
+                                        </div>
+                                        <div class="input-group mt-2">
+                                            <span class="input-group-text">نوع التقسيط</span>
+                                            <select id="installmentTypeSelect" class="form-select form-select-sm">
+                                                <option value="بنكي">تقسيط بنكي</option>
+                                                <option value="كمبيالات">كمبيالات</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="button" id="completeQuickPurchase" class="btn btn-success" disabled>
+                                        <i class="bi bi-check-circle me-1"></i> إتمام الشراء
+                                    </button>
+                                    <button type="button" id="printInvoice" class="btn btn-outline-primary" disabled>
+                                        <i class="bi bi-printer me-1"></i> طباعة الفاتورة
+                                    </button>
+                                    <button type="button" id="cancelQuickPurchase" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-circle me-1"></i> إلغاء
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+       
+    </style>
+
+
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="section-header recent-purchases">
+                    <i class="fas fa-history"></i>
+                    <h5 class="card-title mb-0">اخر المبيعات</h5>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover datatable">
+                        <thead>
+                            <tr>
+                                <th>رقم الفاتورة</th>
+                                <th>كود المنتج</th>
+                                <th>اسم المنتج</th>
+                                <th>الكمية</th>
+                                <th>سعر الوحدة</th>
+                                <th>الإجمالي</th>
+                                <th>عدد الأصناف</th>
+                                <th>الحالة</th>
+                                <th>اسم العميل</th>
+                                <th>أنشئ بواسطة</th>
+                                <th>الوقت</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentPurchasesBody">
+                            @* Render recent sales first *@
+                            @foreach (var sale in Model.RecentSales.OrderByDescending(s => s.Date))
+                            {
+                                var itemCount = sale.SalesInvoiceItems.Count();
+                                foreach (var item in sale.SalesInvoiceItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="@Url.Action("Details", "Sales", new { id = sale.Id })" class="text-primary fw-bold">
+                                                @sale.InvoiceNumber
+                                            </a>
+                                        </td>
+                                        <td>@(item.Item?.Code ?? "-")</td>
+                                        <td>@(item.Item?.Name ?? "-")</td>
+                                        <td>@Convert.ToInt32(item.Quantity)</td>
+                                        <td>@item.UnitPrice.ToString("C")</td>
+                                        <td>@item.Total.ToString("C")</td>
+                                        <td>
+                                            <a href="@Url.Action("Details", "Sales", new { id = sale.Id })" class="fw-bold text-decoration-underline">
+                                                @itemCount
+                                            </a>
+                                        </td>
+                                        <td>
+                                            @if (sale.PaidAmount >= sale.TotalAmount)
+                                            {
+                                                <span class="badge bg-success">Paid</span>
+                                            }
+                                            else if (sale.PaidAmount > 0)
+                                            {
+                                                <span class="badge bg-warning">Partial</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Unpaid</span>
+                                            }
+                                        </td>
+                                        <td>@(sale.ClientName ?? sale.Customer?.Name ?? "-")</td>
+                                        <td>@(sale.CreatedByUser?.FullName ?? "System")</td>
+                                        <td>@sale.Date.ToString("g")</td>
+                                    </tr>
+                                }
+                            }
+
+                            @* Then render purchase rows as before *@
+                            @foreach (var purchase in Model.RecentPurchases.OrderByDescending(p => p.Date))
+                            {
+                                var itemCount = purchase.Items.Count();
+                                foreach (var item in purchase.Items)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="@Url.Action("Details", "Purchases", new { id = purchase.Id })" class="text-primary fw-bold">
+                                                @purchase.InvoiceNumber
+                                            </a>
+                                        </td>
+                                        <td>@(item.Item?.Code ?? "-")</td>
+                                        <td>@(item.Item?.Name ?? "-")</td>
+                                        <td>@Convert.ToInt32(item.Quantity)</td>
+                                        <td>@item.UnitPrice.ToString("C")</td>
+                                        <td>@item.Total.ToString("C")</td>
+                                        <td>
+                                            <a href="@Url.Action("Details", "Purchases", new { id = purchase.Id })" class="fw-bold text-decoration-underline">
+                                                @itemCount
+                                            </a>
+                                        </td>
+                                        <td>
+                                            @if (purchase.PaidAmount >= purchase.TotalAmount)
+                                            {
+                                                <span class="badge bg-success">Paid</span>
+                                            }
+                                            else if (purchase.PaidAmount > 0)
+                                            {
+                                                <span class="badge bg-warning">Partial</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Unpaid</span>
+                                            }
+                                        </td>
+                                        <td>@(purchase.ClientName ?? "-")</td>
+                                        <td>@(purchase.CreatedByUser?.FullName ?? "System")</td>
+                                        <td>@purchase.Date.ToString("g")</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="section-header top-selling">
+                    <i class="fas fa-chart-line"></i>
+                    <h5 class="card-title mb-0">أفضل العناصر مبيعا</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                @foreach (var item in Model.TopSellingItems)
+                {
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0">@item.Name</h6>
+                            <small class="text-muted">@Convert.ToInt32(item.Quantity) وحدة مباعة</small>
+                        </div>
+                        <div class="ms-3">
+                            <div class="progress" style="width: 100px; height: 4px;">
+                                <div class="progress-bar" role="progressbar" style="width: @(Convert.ToInt32(item.Quantity))%"></div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="section-header quick-actions">
+                    <i class="fas fa-bolt"></i>
+                    <h5 class="card-title mb-0">إجراءات سريعة</h5>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="@Url.Action("Create", "Sales")" class="list-group-item list-group-item-action">
+                    <i class="bi bi-cart-plus me-2"></i> بيع جديد
+                </a>
+                <a href="@Url.Action("Create", "Items")" class="list-group-item list-group-item-action">
+                    <i class="bi bi-box-seam me-2"></i> إضافة عنصر
+                </a>
+                <a href="@Url.Action("Create", "Customers")" class="list-group-item list-group-item-action">
+                    <i class="bi bi-person-plus me-2"></i> عميل جديد
+                </a>
+                <a href="@Url.Action("LowStock", "Items")" class="list-group-item list-group-item-action">
+                    <i class="bi bi-exclamation-circle me-2"></i> عرض المخزون المنخفض
+                </a>
+                <a href="@Url.Action("Index", "Reports")" class="list-group-item list-group-item-action">
+                    <i class="bi bi-file-earmark-bar-graph me-2"></i> إنشاء تقرير
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize DataTables for Recent Purchases (only for tables marked with .datatable)
+            var $table = $('table.table-hover.datatable');
+            var dt;
+            if (!$.fn.dataTable.isDataTable($table[0])) {
+                dt = $table.DataTable({
+                    paging: true,
+                    searching: true,
+                    info: true,
+                    lengthMenu: [10, 25, 50, 100],
+                    order: [[10, 'desc']], // Sort by time column (index 10) descending
+                    language: {
+                        search: "Search:",
+                        lengthMenu: "Show _MENU_ entries"
+                    }
+                });
+            } else {
+                dt = $table.DataTable();
+            }
+
+            // Prepare child row content for each invoice
+            var invoiceDetails = [];
+            @for (int p = 0; p < Model.RecentPurchases.Count; p++)
+            {
+                var purchase = Model.RecentPurchases[p];
+                var itemsList = purchase.Items.ToList();
+                if (itemsList.Count > 1)
+                {
+                    <text>
+                    invoiceDetails[@p] = `<table class='table table-sm mb-0'><tbody>
+                    @for (int i = 1; i < itemsList.Count; i++)
+                    {
+                        var subItem = itemsList[i];
+                        <text>
+                        <tr>
+                            <td></td>
+                            <td>@(subItem.Item?.Code ?? "-")</td>
+                            <td>@(subItem.Item?.Name ?? "-")</td>
+                            <td>@Convert.ToInt32(subItem.Quantity)</td>
+                            <td>@subItem.UnitPrice.ToString("C")</td>
+                            <td>@subItem.Total.ToString("C")</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        </text>
+                    }
+                    </tbody></table>`;
+                    </text>
+                }
+                else
+                {
+                    <text>invoiceDetails[@p] = '';</text>
+                }
+            }
+
+            // DataTables child row expand/collapse
+            $('tbody').on('click', 'tr.invoice-row.first', function () {
+                var tr = $(this);
+                var row = dt.row(tr);
+                var idx = tr.data('child-index');
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    tr.find('.dropdown-arrow i').removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                } else {
+                    row.child(invoiceDetails[idx]).show();
+                    tr.find('.dropdown-arrow i').removeClass('bi-chevron-down').addClass('bi-chevron-up');
+                }
+            });
+            // Initialize stat cards with animation delay
+            $('.stat-card').each(function(index) {
+                $(this).css('animation-delay', (index * 0.1) + 's');
+            });
+
+            // Add hover animation class
+            $('.stat-card').hover(
+                function() {
+                    $(this).addClass('highlight');
+                    $(this).find('.icon').addClass('rotate');
+                },
+                function() {
+                    $(this).removeClass('highlight');
+                    $(this).find('.icon').removeClass('rotate');
+                }
+            );
+
+            // Periodically highlight cards with important metrics
+            setInterval(function() {
+                const lowStockCard = $('[data-stat="lowstock"]');
+                if (parseInt(lowStockCard.find('.stat-value').text()) > 0) {
+                    lowStockCard.addClass('highlight');
+                    setTimeout(() => lowStockCard.removeClass('highlight'), 1000);
+                }
+            }, 5000);
+
+            // Add click animation
+            $('.stat-card').on('mousedown', function() {
+                $(this).css('transform', 'scale(0.95)');
+            }).on('mouseup mouseleave', function() {
+                $(this).css('transform', '');
+            });
+            // Client search and dropdown filter
+            $('#clientSearch').on('keyup', function () {
+                let value = $(this).val().toLowerCase();
+                $('#clientDropdown option').each(function () {
+                    if ($(this).val() === "") return; // keep default
+                    let text = $(this).text().toLowerCase();
+                    $(this).toggle(text.indexOf(value) > -1);
+                });
+            });
+            // Quick Purchasing Cart Logic
+            let cart = [];
+
+            // Add product to cart
+            $(document).on('click', '.add-to-cart', function (e) {
+                e.preventDefault();
+                const $btn = $(this);
+                if ($btn.hasClass('disabled')) return;
+                const id = $btn.data('id');
+                const name = $btn.data('name');
+                const price = parseFloat($btn.data('price'));
+                const stock = parseInt($btn.data('stock'));
+                let item = cart.find(x => x.id === id);
+                if (item) {
+                    if (item.quantity < stock) {
+                        item.quantity++;
+                    } else {
+                        showNoStock($btn);
+                        return;
+                    }
+                } else {
+                    cart.push({ id, name, price, stock, quantity: 1 });
+                }
+                showAddSuccess($btn);
+                updateCartDisplay();
+            });
+
+            // Update cart display in grid/table format
+            function updateCartDisplay() {
+                const $cartItems = $('#cartItems');
+                const $emptyCart = $('#emptyCart');
+                let cartHtml = '';
+                let total = 0;
+                if (cart.length > 0) {
+                    cartHtml += `<table class="table table-bordered align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Code</th>
+                                <th class="text-end">السعر</th>
+                                <th class="text-center">الكمية</th>
+                                <th class="text-end">الإجمالي</th>
+                                <th class="text-center">إزالة</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                    cart.forEach((item, index) => {
+                        const itemTotal = item.price * item.quantity;
+                        total += itemTotal;
+                        cartHtml += `
+                            <tr data-id="${item.id}">
+                                <td>${item.name}</td>
+                                <td><span class="text-muted">${item.id}</span></td>
+                                <td class="text-end">$${item.price.toFixed(2)}</td>
+                                <td class="text-center">
+                                    <input type="number" class="form-control form-control-sm cart-quantity" style="width: 70px; display:inline-block;" value="${item.quantity}" min="1" max="${item.stock}" data-index="${index}">
+                                </td>
+                                <td class="text-end">$${itemTotal.toFixed(2)}</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-danger remove-item" data-index="${index}"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    cartHtml += `</tbody></table>`;
+                }
+                $cartItems.html(cartHtml);
+                $('#cartCount').text(`${cart.length} ${cart.length === 1 ? 'item' : 'items'}`);
+                $('#cartSubtotal, #cartTotal').text(`$${total.toFixed(2)}`);
+                $('#completeQuickPurchase').prop('disabled', cart.length === 0);
+                $('#printInvoice').prop('disabled', cart.length === 0);
+                if (cart.length === 0) {
+                    $cartItems.addClass('d-none');
+                    $emptyCart.removeClass('d-none');
+                } else {
+                    $emptyCart.addClass('d-none');
+                    $cartItems.removeClass('d-none');
+                }
+                updateBalance();
+            }
+
+            // Quantity change in cart
+            $(document).on('change', '.cart-quantity', function () {
+                const index = $(this).data('index');
+                const newQty = parseInt($(this).val());
+                if (newQty > 0 && newQty <= cart[index].stock) {
+                    cart[index].quantity = newQty;
+                    updateCartDisplay();
+                } else {
+                    $(this).val(cart[index].quantity);
+                    alert('Invalid quantity!');
+                }
+            });
+
+            // Remove item from cart
+            $(document).on('click', '.remove-item', function () {
+                const index = $(this).data('index');
+                cart.splice(index, 1);
+                updateCartDisplay();
+            });
+
+            // Payment input
+            $('#amountPaid').on('input', updateBalance);
+
+            // Add dropdowns for Payment Method and Invoice Type (defaults)
+            if ($('#paymentMethodSelect').length === 0) {
+                const paymentHtml = `
+                    <div class="row g-2 align-items-center mt-2">
+                        <div class="col-auto">
+                            <label class="form-label mb-0">Payment Method</label>
+                            <select id="paymentMethodSelect" class="form-select form-select-sm">
+                                <option value="Cash">Cash</option>
+                                <option value="Card">Card</option>
+                                <option value="BankTransfer">BankTransfer</option>
+                                <option value="Installment">Installment</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-label mb-0">Invoice Type</label>
+                            <select id="invoiceTypeSelect" class="form-select form-select-sm">
+                                <option value="Retail">Retail</option>
+                                <option value="TaxInvoice">TaxInvoice</option>
+                                <option value="Credit">Credit</option>
+                            </select>
+                        </div>
+                        <div class="col-12" id="installmentFields" style="display:none;">
+                            <div class="input-group mt-2">
+                                <span class="input-group-text">المقدم</span>
+                                <input type="number" id="downPayment" class="form-control form-control-sm" step="0.01" min="0" value="0">
+                                <span class="input-group-text">عدد شهور</span>
+                                <input type="number" id="installmentMonths" class="form-control form-control-sm" min="1" value="3">
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text">نوع التقسيط</span>
+                                <select id="installmentTypeSelect" class="form-select form-select-sm">
+                                    <option value="بنكي">تقسيط بنكي</option>
+                                    <option value="كمبيالات">كمبيالات</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>`;
+                $('#cartSummaryContainer').append(paymentHtml);
+            }
+            // Show/hide installment inputs when payment method or invoice type changes
+            function toggleInstallmentFields() {
+                var pm = $('#paymentMethodSelect').val();
+                var it = $('#invoiceTypeSelect').val();
+                // Show installment fields for Installment payment method OR Credit invoice type
+                if (pm === 'Installment' || it === 'Credit') {
+                    $('#installmentFields').show();
+                } else {
+                    $('#installmentFields').hide();
+                }
+            }
+            $(document).on('change', '#paymentMethodSelect', toggleInstallmentFields);
+            $(document).on('change', '#invoiceTypeSelect', toggleInstallmentFields);
+            function updateBalance() {
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const paymentMethod = $('#paymentMethodSelect').val();
+                const invoiceType = $('#invoiceTypeSelect').val();
+                const isInstallmentOrCredit = (paymentMethod === 'Installment') || (invoiceType === 'Credit');
+                // If installment/credit use downPayment as the shown paid amount
+                const paid = isInstallmentOrCredit ? (parseFloat($('#downPayment').val() || 0) || 0) : (parseFloat($('#amountPaid').val()) || 0);
+                const balance = paid - total;
+                const $balance = $('#balance');
+                $balance.text(`$${Math.abs(balance).toFixed(2)}`);
+                $balance.toggleClass('text-danger', balance < 0).toggleClass('text-success', balance >= 0);
+            }
+
+            // Keep amountPaid in sync with downPayment for installment/credit flows so UI shows correct paid amount
+            $(document).on('input change', '#downPayment', function () {
+                const paymentMethod = $('#paymentMethodSelect').val();
+                const invoiceType = $('#invoiceTypeSelect').val();
+                const isInstallmentOrCredit = (paymentMethod === 'Installment') || (invoiceType === 'Credit');
+                const down = parseFloat($(this).val() || 0) || 0;
+                if (isInstallmentOrCredit) {
+                    // reflect down payment in visible amountPaid field
+                    $('#amountPaid').val(down.toFixed(2));
+                }
+                updateBalance();
+            });
+
+            // When payment/invoice type changes update balance and possibly sync amountPaid
+            $(document).on('change', '#paymentMethodSelect, #invoiceTypeSelect', function () {
+                const paymentMethod = $('#paymentMethodSelect').val();
+                const invoiceType = $('#invoiceTypeSelect').val();
+                const isInstallmentOrCredit = (paymentMethod === 'Installment') || (invoiceType === 'Credit');
+                if (isInstallmentOrCredit) {
+                    const down = parseFloat($('#downPayment').val() || 0) || 0;
+                    $('#amountPaid').val(down.toFixed(2));
+                }
+                updateBalance();
+            });
+
+            // Complete purchase
+            $('#completeQuickPurchase').click(function () {
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                let paid = parseFloat($('#amountPaid').val()) || 0;
+                const paymentMethod = $('#paymentMethodSelect').val();
+                const invoiceType = $('#invoiceTypeSelect').val();
+                const isInstallmentOrCredit = (paymentMethod === 'Installment') || (invoiceType === 'Credit');
+
+                // Read down payment and months
+                const down = $('#downPayment').length ? parseFloat($('#downPayment').val() || 0) : 0;
+                const months = $('#installmentMonths').length ? parseInt($('#installmentMonths').val() || '0') : 0;
+
+                // If it's not an installment/credit flow, require full payment
+                if (!isInstallmentOrCredit && paid < total) {
+                    alert('Please enter the full payment amount');
+                    return;
+                }
+
+                // If installment or credit, validate down payment range and treat down as paid
+                if (isInstallmentOrCredit) {
+                    if (isNaN(down) || down < 0) {
+                        alert('المقدم يجب أن يكون رقمًا أكبر من أو يساوي صفر');
+                        return;
+                    }
+                    if (down > total) {
+                        alert('المقدم لا يمكن أن يكون أكبر من إجمالي الفاتورة');
+                        return;
+                    }
+                    // Use down payment as the amount paid for the request
+                    paid = down;
+                }
+
+                // Prepare purchase data
+                const purchaseData = {
+                    items: cart.map(x => ({
+                        itemId: x.id,
+                        quantity: x.quantity,
+                        unitPrice: x.price
+                    })),
+                    amountPaid: paid,
+                    totalAmount: total,
+                    paymentMethod: paymentMethod,
+                    invoiceType: invoiceType,
+                    downPayment: down,
+                    numberOfMonths: months,
+                    installmentType: $('#installmentTypeSelect').length ? $('#installmentTypeSelect').val() : null
+                };
+                // Attach selected customer
+                purchaseData.customerId = parseInt($('#clientDropdown').val() || '0');
+                if (!purchaseData.customerId) {
+                    alert('Please select a customer');
+                    return;
+                }
+                // Send AJAX request to save purchase
+                $.ajax({
+                    url: '/api/sales',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(purchaseData),
+                    success: function (response) {
+                        alert('Purchase completed successfully!');
+                        // If installment was chosen, navigate to the Installments list
+                        if (purchaseData.paymentMethod === 'Installment') {
+                            window.location.href = '/Installments';
+                            return;
+                        }
+                        cart = [];
+                        updateCartDisplay();
+                        $('#amountPaid').val('');
+                        location.reload(); // Refresh dashboard to show new purchase
+                    },
+                    error: function (xhr) {
+                        alert('Error saving purchase: ' + xhr.responseText);
+                    }
+                });
+            });
+
+            // Print invoice
+            $('#printInvoice').click(function () {
+                if (cart.length === 0) return;
+                alert('Invoice printed!');
+            });
+
+            // Cancel purchase
+            $('#cancelQuickPurchase').click(function () {
+                cart = [];
+                updateCartDisplay();
+                $('#amountPaid').val('');
+            });
+
+            // Item search
+            $('#quickSearchItems').on('keyup', function () {
+                let value = $(this).val().toLowerCase();
+                $('.product-box').filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+
+            // Button feedback helpers
+            function showAddSuccess($btn) {
+                $btn.html('<i class="bi bi-check2"></i> Added').removeClass('btn-success').addClass('btn-primary').prop('disabled', true);
+                setTimeout(() => {
+                    $btn.html('<i class="bi bi-bag-plus"></i> Add').removeClass('btn-primary').addClass('btn-success').prop('disabled', false);
+                }, 1000);
+            }
+            function showNoStock($btn) {
+                $btn.html('<i class="bi bi-exclamation-triangle"></i> No Stock').removeClass('btn-success').addClass('btn-danger').prop('disabled', true);
+                setTimeout(() => {
+                    $btn.html('<i class="bi bi-bag-plus"></i> Add').removeClass('btn-danger').addClass('btn-success').prop('disabled', false);
+                }, 1000);
+            }
+
+            // Fetch active items count
+            fetch('/api/items/active-count')
+                .then(response => response.json())
+                .then(count => {
+                    document.getElementById('activeItems').textContent = count;
+                });
+        });
+    </script>
+}

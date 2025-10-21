@@ -1,0 +1,1 @@
+// Chart.js UMD placeholder. Download the official file from https://www.chartjs.org/ or use LibMan to restore.

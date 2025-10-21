@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "استلام دفعة";
+    var inst = ViewBag.Installment as ShopInventory.Models.Installment;
+}
+
+<div class="container mt-4">
+    <h3>استلام دفعة - @inst?.Customer?.Name (@inst?.CustomerId)</h3>
+    <form method="post" asp-action="Create">
+        <input type="hidden" name="installmentId" value="@inst?.Id" />
+        <div class="mb-3">
+            <label>المبلغ</label>
+            <input class="form-control" name="amount" />
+        </div>
+        <div class="mb-3">
+            <label>طريقة الدفع</label>
+            <select class="form-select" name="paymentMethod">
+                <option>Cash</option>
+                <option>Card</option>
+                <option>BankTransfer</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit">حفظ</button>
+    </form>
+</div>

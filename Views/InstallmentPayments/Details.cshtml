@@ -1,0 +1,28 @@
+@model IEnumerable<ShopInventory.Models.InstallmentPayment>
+@{
+    ViewData["Title"] = "تفاصيل الدفعات";
+}
+<div class="container mt-4">
+    <h3>تفاصيل الدفعات - @ViewBag.InstallmentId</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>التاريخ</th>
+                <th>المبلغ</th>
+                <th>طريقة الدفع</th>
+                <th>ملاحظات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td>@p.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@p.Amount.ToString("C")</td>
+                    <td>@(p.PaymentMethod ?? "-")</td>
+                    <td>@(p.Notes ?? "-")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

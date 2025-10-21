@@ -1,0 +1,241 @@
+@{
+    ViewData["Title"] = "Settings";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Settings</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">System Settings</li>
+    </ol>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-4 mb-4">
+            <div class="list-group settings-nav" id="settingsTab" role="tablist">
+                <a class="list-group-item list-group-item-action active" id="general-tab" data-bs-toggle="list" href="#general" role="tab">
+                    <i class="fas fa-cog me-2"></i> General Settings
+                </a>
+                <a class="list-group-item list-group-item-action" id="company-tab" data-bs-toggle="list" href="#company" role="tab">
+                    <i class="fas fa-building me-2"></i> Company Info
+                </a>
+                <a class="list-group-item list-group-item-action" id="invoice-tab" data-bs-toggle="list" href="#invoice" role="tab">
+                    <i class="fas fa-file-invoice me-2"></i> Invoice Settings
+                </a>
+                <a class="list-group-item list-group-item-action" id="email-tab" data-bs-toggle="list" href="#email" role="tab">
+                    <i class="fas fa-envelope me-2"></i> Email Settings
+                </a>
+                <a class="list-group-item list-group-item-action" id="backup-tab" data-bs-toggle="list" href="#backup" role="tab">
+                    <i class="fas fa-database me-2"></i> Backup Settings
+                </a>
+            </div>
+        </div>
+
+        <div class="col-xl-9 col-md-8">
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="general" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">General Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="UpdateGeneralSettings" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label">Default Currency</label>
+                                    <select class="form-select" name="DefaultCurrency">
+                                        <option value="USD">US Dollar ($)</option>
+                                        <option value="EUR">Euro (€)</option>
+                                        <option value="GBP">British Pound (£)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Date Format</label>
+                                    <select class="form-select" name="DateFormat">
+                                        <option value="MM/dd/yyyy">MM/DD/YYYY</option>
+                                        <option value="dd/MM/yyyy">DD/MM/YYYY</option>
+                                        <option value="yyyy-MM-dd">YYYY-MM-DD</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Time Zone</label>
+                                    <select class="form-select" name="TimeZone">
+                                        <option value="UTC">UTC</option>
+                                        <option value="EST">Eastern Time</option>
+                                        <option value="PST">Pacific Time</option>
+                                    </select>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="enableNotifications" name="EnableNotifications">
+                                    <label class="form-check-label" for="enableNotifications">Enable Email Notifications</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="company" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Company Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="UpdateCompanyInfo" method="post" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <label class="form-label">Company Name</label>
+                                    <input type="text" class="form-control" name="CompanyName">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Address</label>
+                                    <textarea class="form-control" name="Address" rows="3"></textarea>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Phone</label>
+                                        <input type="tel" class="form-control" name="Phone">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" name="Email">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Company Logo</label>
+                                    <input type="file" class="form-control" name="Logo" accept="image/*">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="invoice" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Invoice Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="UpdateInvoiceSettings" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label">Invoice Prefix</label>
+                                    <input type="text" class="form-control" name="InvoicePrefix">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Next Invoice Number</label>
+                                    <input type="number" class="form-control" name="NextInvoiceNumber">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Invoice Footer Text</label>
+                                    <textarea class="form-control" name="InvoiceFooter" rows="3"></textarea>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="showLogo" name="ShowLogo">
+                                    <label class="form-check-label" for="showLogo">Show Company Logo on Invoice</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="email" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Email Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="UpdateEmailSettings" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label">SMTP Server</label>
+                                    <input type="text" class="form-control" name="SmtpServer">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">SMTP Port</label>
+                                        <input type="number" class="form-control" name="SmtpPort">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Use SSL</label>
+                                        <select class="form-select" name="UseSsl">
+                                            <option value="true">Yes</option>
+                                            <option value="false">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email Username</label>
+                                    <input type="text" class="form-control" name="Username">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email Password</label>
+                                    <input type="password" class="form-control" name="Password">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="button" class="btn btn-secondary" onclick="testEmailSettings()">Test Connection</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="backup" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Backup Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="UpdateBackupSettings" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label">Backup Location</label>
+                                    <input type="text" class="form-control" name="BackupLocation">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Backup Frequency</label>
+                                    <select class="form-select" name="BackupFrequency">
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly">Monthly</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Retention Period (days)</label>
+                                    <input type="number" class="form-control" name="RetentionPeriod">
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="compressBackup" name="CompressBackup">
+                                    <label class="form-check-label" for="compressBackup">Compress Backup Files</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="button" class="btn btn-success" onclick="createBackup()">Create Backup Now</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function testEmailSettings() {
+            // Add email testing logic
+            alert('Testing email settings...');
+        }
+
+        function createBackup() {
+            // Add backup creation logic
+            alert('Creating backup...');
+        }
+
+        // Preserve active tab after form submission
+        $(document).ready(function() {
+            var activeTab = localStorage.getItem('settingsActiveTab');
+            if (activeTab) {
+                $('#settingsTab a[href="' + activeTab + '"]').tab('show');
+            }
+
+            $('#settingsTab a').on('shown.bs.tab', function (e) {
+                localStorage.setItem('settingsActiveTab', $(e.target).attr('href'));
+            });
+        });
+    </script>
+}
