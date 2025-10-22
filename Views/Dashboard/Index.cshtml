@@ -890,13 +890,21 @@
                         <div class="mb-3">
                             <label for="clientSearch" class="form-label">اسم العميل</label>
                             <input type="text" id="clientSearch" class="form-control mb-2" placeholder="البحث عن العملاء حسب الاسم...">
-                            <select id="clientDropdown" class="form-select">
+                            <div class="d-flex">
+                                <select id="clientDropdown" class="form-select">
                                 <option value="">اختر عميل</option>
                                 @foreach (var client in Model.Clients)
                                 {
                                     <option value="@client.Id">@client.Name</option>
                                 }
-                            </select>
+                                </select>
+                                <div class="input-group ms-2" style="width:140px;">
+                                    <a class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center" href="@Url.Action("Create", "Customers")" title="اضافة عميل جديد">
+                                        <i class="bi bi-person-plus me-1"></i>
+                                        <span>عميل جديد</span>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                         <div class="cart-wrapper">
                             <div class="cart-header bg-success text-white p-3">
@@ -1349,7 +1357,7 @@
                                 </td>
                                 <td class="text-end">$${itemTotal.toFixed(2)}</td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-danger remove-item" data-index="${index}"><i class="bi bi-trash"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger remove-item" data-index="${index}"><i class="bi bi-trash"></i> <span class="d-none d-sm-inline">إزالة</span></button>
                                 </td>
                             </tr>
                         `;

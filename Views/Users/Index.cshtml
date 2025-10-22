@@ -1,4 +1,4 @@
-@model IEnumerable<ShopInventory.Models.ApplicationUser>
+@model IEnumerable<ShopInventory.Models.UserListItemViewModel>
 
 @{
     ViewData["Title"] = "Users";
@@ -78,12 +78,12 @@
                     @foreach (var user in Model)
                     {
                         <tr>
-                                <td>@user.FullName</td>
-                                <td>@user.UserName</td>
-                                <td>@user.Email</td>
-                                <td>N/A</td>
-                                <td>N/A</td>
-                                <td>N/A</td>
+                                    <td>@user.FullName</td>
+                                    <td>@user.UserName</td>
+                                    <td>@user.Email</td>
+                                    <td>@(string.IsNullOrWhiteSpace(user.Role) ? "-" : user.Role)</td>
+                                    <td>@(user.LastLogin.HasValue ? user.LastLogin.Value.ToString("yyyy-MM-dd HH:mm") : "-")</td>
+                                    <td>@user.Status</td>
                             <td>
                                 <div class="btn-group" role="group">
                                     @if (User.IsInRole("Admin"))

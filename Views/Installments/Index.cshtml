@@ -9,6 +9,66 @@
         <a class="btn btn-primary" href="#" id="createInstallmentBtn"><i class="bi bi-plus-lg"></i> جديد</a>
     </div>
 
+    @{ int? _days = ViewData["Days"] as int?; }
+    <form method="get" class="row g-2 align-items-center mb-3">
+        <div class="col-auto">
+            <input type="text" name="search" class="form-control" placeholder="ابحث باسم العميل أو رقم التقسيط"
+                   value="@(ViewData["Search"] ?? string.Empty)" />
+        </div>
+        <div class="col-auto">
+            <select name="days" class="form-select">
+                @if (_days == null)
+                {
+                    <option value="" selected>كل الفترات</option>
+                }
+                else
+                {
+                    <option value="">كل الفترات</option>
+                }
+
+                @if (_days != null && _days == 0)
+                {
+                    <option value="0" selected>اليوم</option>
+                }
+                else
+                {
+                    <option value="0">اليوم</option>
+                }
+
+                @if (_days != null && _days == 7)
+                {
+                    <option value="7" selected>الأسبوع القادم</option>
+                }
+                else
+                {
+                    <option value="7">الأسبوع القادم</option>
+                }
+
+                @if (_days != null && _days == 30)
+                {
+                    <option value="30" selected>الشهر القادم</option>
+                }
+                else
+                {
+                    <option value="30">الشهر القادم</option>
+                }
+
+                @if (_days != null && _days == 90)
+                {
+                    <option value="90" selected>3 أشهر</option>
+                }
+                else
+                {
+                    <option value="90">3 أشهر</option>
+                }
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-outline-primary">تصفية</button>
+            <a href="@Url.Action("Index", "Installments")" class="btn btn-link">إعادة ضبط</a>
+        </div>
+    </form>
+
     <div class="table-responsive">
         <table class="table table-striped datatable" id="installmentsTable">
             <thead>
@@ -31,7 +91,7 @@
                 @if (!Model?.Any() ?? true)
                 {
                     <tr>
-                        <td colspan="10" class="text-center text-muted">لا توجد بيانات بعد</td>
+                        <td colspan="12" class="text-center text-muted">لا توجد بيانات بعد</td>
                     </tr>
                 }
                 else
@@ -42,9 +102,19 @@
                         <tr>
                             <td>@idx</td>
                             <td>@(it.Customer?.Name ?? it.CustomerId.ToString())</td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(it.InstallmentType))
+                                {
+                                    <span class="badge bg-secondary">@it.InstallmentType</span>
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
                             <td>@(it.NextPaymentDate.HasValue ? it.NextPaymentDate.Value.ToString("yyyy-MM-dd") : "-")</td>
                             <td>
-                                <a class="btn btn-sm btn-success" href="@Url.Action("Create", "InstallmentPayments", new { installmentId = it.Id })">استلام دفعة</a>
+                                <a class="btn btn-sm btn-success me-1" href="@Url.Action("Create", "InstallmentPayments", new { installmentId = it.Id })">استلام دفعة</a>
                                 <a class="btn btn-sm btn-info" href="@Url.Action("Details", "InstallmentPayments", new { installmentId = it.Id })">تفاصيل</a>
                             </td>
                             <td>@it.TotalAmount.ToString("C")</td>
@@ -53,12 +123,6 @@
                             <td>@it.NumberOfMonths</td>
                             <td>@it.MonthlyAmount.ToString("C")</td>
                             <td>@it.CreatedAt.ToString("yyyy-MM-dd")</td>
-                            <td>
-                                @if (!string.IsNullOrWhiteSpace(it.InstallmentType))
-                                {
-                                    <span class="badge bg-secondary">@it.InstallmentType</span>
-                                }
-                            </td>
                             <td>
                                 @if (it.Status == "تم التحصيل كاملا")
                                 {
