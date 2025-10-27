@@ -10,8 +10,8 @@ namespace ShopInventory.Documents
 {
     public class SalesReportDocument : IDocument
     {
-        private readonly List<PurchaseInvoiceItem> _sales;
-        public SalesReportDocument(List<PurchaseInvoiceItem> sales)
+        private readonly List<ShopInventory.Models.SalesInvoiceItem> _sales;
+        public SalesReportDocument(List<ShopInventory.Models.SalesInvoiceItem> sales)
         {
             _sales = sales;
         }
@@ -53,16 +53,17 @@ namespace ShopInventory.Documents
                     // Data rows
                     foreach (var item in _sales)
                     {
-                        table.Cell().Element(CellStyle).Text(item.InvoiceNumber);
-                        table.Cell().Element(CellStyle).Text(item.ProductCode);
-                        table.Cell().Element(CellStyle).Text(item.ItemName);
+                        table.Cell().Element(CellStyle).Text(item.SalesInvoice?.InvoiceNumber ?? "");
+                        table.Cell().Element(CellStyle).Text(item.Item?.Code ?? "");
+                        table.Cell().Element(CellStyle).Text(item.Item?.Name ?? "");
                         table.Cell().Element(CellStyle).Text(item.Quantity.ToString());
                         table.Cell().Element(CellStyle).Text(item.UnitPrice.ToString("F2"));
                         table.Cell().Element(CellStyle).Text(item.Total.ToString("F2"));
-                        table.Cell().Element(CellStyle).Text((item.PurchaseInvoice?.Items?.Count() ?? 0).ToString());
-                        table.Cell().Element(CellStyle).Text(item.Status);
-                        table.Cell().Element(CellStyle).Text(item.CreatedByUserName);
-                        table.Cell().Element(CellStyle).Text(item.Date.ToString("yyyy/MM/dd HH:mm"));
+                        table.Cell().Element(CellStyle).Text((item.SalesInvoice?.SalesInvoiceItems?.Count() ?? 0).ToString());
+                        var status = item.SalesInvoice != null && (item.SalesInvoice.Balance == 0) ? "Paid" : "Unpaid";
+                        table.Cell().Element(CellStyle).Text(status);
+                        table.Cell().Element(CellStyle).Text(item.SalesInvoice?.CreatedByUser?.UserName ?? "");
+                        table.Cell().Element(CellStyle).Text(item.SalesInvoice != null ? item.SalesInvoice.Date.ToString("yyyy/MM/dd HH:mm") : "");
                     }
                 });
             });

@@ -143,27 +143,53 @@
         </div>
     </div>
 
+    <!-- Filter card styled like dashboard metric cards -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0" style="background: linear-gradient(135deg, #1f3a8a, #3b82f6); box-shadow: 0 4px 18px rgba(0,0,0,0.08);">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center">
+                            <div style="background: rgba(255,255,255,0.08); border-radius:10px; padding:12px; margin-inline-end:12px;">
+                                <i class="fas fa-filter text-white fa-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0 text-white">بحث وتصفية</h5>
+                                <div class="text-white-50" style="font-size:0.95rem;">استخدم الفلاتر أدناه لتضييق النتائج</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="badge" style="background: rgba(255,255,255,0.12); color: white;">@ViewData["PeriodLabel"]</span>
+                        </div>
+                    </div>
+
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="startDate" class="form-label text-white">من تاريخ</label>
+                            <input type="date" class="form-control bg-white" id="startDate" name="startDate" value="@Context.Request.Query["startDate"]" />
+                        </div>
+                        <div class="col-md-3">
+                            <label for="endDate" class="form-label text-white">إلى تاريخ</label>
+                            <input type="date" class="form-control bg-white" id="endDate" name="endDate" value="@Context.Request.Query["endDate"]" />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="searchTerm" class="form-label text-white">بحث</label>
+                            <input type="text" class="form-control bg-white" id="searchTerm" name="searchTerm" value="@Context.Request.Query["searchTerm"]" placeholder="البحث برقم الفاتورة، المورد، المستخدم..." />
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-light w-100">
+                                <i class="bi bi-search"></i> تصفية
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table card -->
     <div class="card mb-4">
         <div class="card-body">
-            <form method="get" class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <label for="startDate" class="form-label">من تاريخ</label>
-                    <input type="date" class="form-control" id="startDate" name="startDate" value="@Context.Request.Query["startDate"]" />
-                </div>
-                <div class="col-md-3">
-                    <label for="endDate" class="form-label">إلى تاريخ</label>
-                    <input type="date" class="form-control" id="endDate" name="endDate" value="@Context.Request.Query["endDate"]" />
-                </div>
-                <div class="col-md-4">
-                    <label for="searchTerm" class="form-label">بحث</label>
-                    <input type="text" class="form-control" id="searchTerm" name="searchTerm" value="@Context.Request.Query["searchTerm"]" placeholder="البحث برقم الفاتورة، المورد، المستخدم..." />
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-search"></i> تصفية
-                    </button>
-                </div>
-            </form>
             <div class="table-responsive">
                 <table class="table table-bordered table-hover align-middle">
                     <thead class="table-light">

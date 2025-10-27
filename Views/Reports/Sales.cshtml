@@ -1,5 +1,5 @@
-تقرير المخزون
-@model IEnumerable<ShopInventory.Models.PurchaseInvoiceItem>
+تقرير المبيعات
+@model IEnumerable<ShopInventory.Models.SalesInvoiceItem>
 @{
     ViewData["Title"] = "Purchases Reports";
     var isPrint = Context.Request.Query["print"] == "true";
@@ -85,25 +85,30 @@
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td><a href="/Purchases/Details/@item.PurchaseInvoiceId" target="_blank">@item.InvoiceNumber</a></td>
-                                <td>@item.ProductCode</td>
-                                <td>@item.ItemName</td>
+                                <td>
+                                    <a href="/Sales/Details/@item.SalesInvoiceId" target="_blank">@item.SalesInvoice?.InvoiceNumber</a>
+                                </td>
+                                <td>@item.Item?.Code</td>
+                                <td>@item.Item?.Name</td>
                                 <td>@item.Quantity.ToString("N3")</td>
                                 <td>@item.UnitPrice.ToString("C2")</td>
                                 <td>@item.Total.ToString("C2")</td>
-                                <td>@item.PurchaseInvoice?.Items?.Count()</td>
+                                <td>@item.SalesInvoice?.SalesInvoiceItems?.Count()</td>
                                 <td>
-                                    @if (item.Status == "Paid")
+                                    @{
+                                        var status = item.SalesInvoice != null && (item.SalesInvoice.Balance == 0) ? "Paid" : "Unpaid";
+                                    }
+                                    @if (status == "Paid")
                                     {
                                         <span class="badge bg-success">Paid</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary">@item.Status</span>
+                                        <span class="badge bg-secondary">@status</span>
                                     }
                                 </td>
-                                <td>@item.CreatedByUserName</td>
-                                <td>@item.Date.ToString("M/d/yyyy h:mm tt")</td>
+                                <td>@item.SalesInvoice?.CreatedByUser?.UserName</td>
+                                <td>@(item.SalesInvoice != null ? item.SalesInvoice.Date.ToString("M/d/yyyy h:mm tt") : "")</td>
                             </tr>
                         }
                     </tbody>

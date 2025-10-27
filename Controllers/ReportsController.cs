@@ -62,36 +62,24 @@ namespace ShopInventory.Controllers
             return View(items);
         }
 
-        public async Task<IActionResult> CustomerBalances()
-        {
-            var customers = await _context.Customers
-                .Where(c => c.Balance != 0)
-                .OrderByDescending(c => Math.Abs(c.Balance))
-                .ToListAsync();
-
-            return View(customers);
-        }
-
-        public async Task<IActionResult> SupplierBalances()
-        {
-            var suppliers = await _context.Suppliers
-                .Where(s => s.Balance != 0)
-                .OrderByDescending(s => Math.Abs(s.Balance))
-                .ToListAsync();
-
-            return View(suppliers);
-        }
-
-        // --- Export actions for reports ---
         [HttpGet]
-    public IActionResult ExportSales(DateTime? startDate, DateTime? endDate, string format = "excel")
+        public IActionResult ExportSales(DateTime? startDate, DateTime? endDate, string format = "excel")
         {
-            var query = _context.PurchaseInvoiceItems.Include(p => p.PurchaseInvoice).AsQueryable();
+            // Export SalesInvoiceItems (sales) rather than PurchaseInvoiceItems
+            var query = _context.SalesInvoiceItems
+                .Include(si => si.SalesInvoice)
+                    .ThenInclude(s => s.Customer)
+                .Include(si => si.SalesInvoice)
+                    .ThenInclude(s => s.CreatedByUser)
+                .Include(si => si.Item)
+                .AsQueryable();
+
             if (startDate.HasValue)
-                query = query.Where(p => p.Date >= startDate.Value);
+                query = query.Where(si => si.SalesInvoice != null && si.SalesInvoice.Date >= startDate.Value);
             if (endDate.HasValue)
-                query = query.Where(p => p.Date <= endDate.Value);
-            var sales = query.OrderByDescending(p => p.Date).ToList();
+                query = query.Where(si => si.SalesInvoice != null && si.SalesInvoice.Date <= endDate.Value);
+
+            var sales = query.OrderByDescending(si => si.SalesInvoice != null ? si.SalesInvoice.Date : DateTime.MinValue).ToList();
 
             if (format == "excel")
             {
@@ -112,16 +100,17 @@ namespace ShopInventory.Controllers
                     int row = 2;
                     foreach (var item in sales)
                     {
-                        worksheet.Cell(row, 1).Value = item.InvoiceNumber;
-                        worksheet.Cell(row, 2).Value = item.ProductCode;
-                        worksheet.Cell(row, 3).Value = item.ItemName;
+                        worksheet.Cell(row, 1).Value = item.SalesInvoice?.InvoiceNumber;
+                        worksheet.Cell(row, 2).Value = item.Item?.Code ?? string.Empty;
+                        worksheet.Cell(row, 3).Value = item.Item?.Name ?? string.Empty;
                         worksheet.Cell(row, 4).Value = item.Quantity;
                         worksheet.Cell(row, 5).Value = item.UnitPrice;
                         worksheet.Cell(row, 6).Value = item.Total;
-                        worksheet.Cell(row, 7).Value = item.PurchaseInvoice?.Items?.Count() ?? 0;
-                        worksheet.Cell(row, 8).Value = item.Status;
-                        worksheet.Cell(row, 9).Value = item.CreatedByUserName;
-                        worksheet.Cell(row, 10).Value = item.Date.ToString("yyyy/MM/dd HH:mm");
+                        worksheet.Cell(row, 7).Value = item.SalesInvoice?.SalesInvoiceItems?.Count() ?? 0;
+                        var status = (item.SalesInvoice != null && (item.SalesInvoice.TotalAmount - item.SalesInvoice.PaidAmount) == 0) ? "Paid" : "Unpaid";
+                        worksheet.Cell(row, 8).Value = status;
+                        worksheet.Cell(row, 9).Value = item.SalesInvoice?.CreatedByUser?.UserName ?? string.Empty;
+                        worksheet.Cell(row, 10).Value = item.SalesInvoice?.Date.ToString("yyyy/MM/dd HH:mm") ?? string.Empty;
                         row++;
                     }
 
@@ -203,16 +192,22 @@ namespace ShopInventory.Controllers
             if (DateTime.TryParse(Request.Query["startDate"], out var s)) startDate = s.Date;
             if (DateTime.TryParse(Request.Query["endDate"], out var e)) endDate = e.Date.AddDays(1).AddTicks(-1);
 
-            var query = _context.PurchaseInvoiceItems
-                .Include(p => p.PurchaseInvoice)
+            // Return sales invoice items (not purchase items)
+            var query = _context.SalesInvoiceItems
+                .Include(si => si.SalesInvoice)
+                    .ThenInclude(s => s.Customer)
+                .Include(si => si.SalesInvoice)
+                    .ThenInclude(s => s.CreatedByUser)
+                .Include(si => si.Item)
                 .AsQueryable();
-            if (startDate.HasValue)
-                query = query.Where(p => p.Date >= startDate.Value);
-            if (endDate.HasValue)
-                query = query.Where(p => p.Date <= endDate.Value);
 
-            var purchases = query.OrderByDescending(p => p.Date).ToList();
-            return View(purchases);
+            if (startDate.HasValue)
+                query = query.Where(si => si.SalesInvoice != null && si.SalesInvoice.Date >= startDate.Value);
+            if (endDate.HasValue)
+                query = query.Where(si => si.SalesInvoice != null && si.SalesInvoice.Date <= endDate.Value);
+
+            var salesItems = query.OrderByDescending(si => si.SalesInvoice != null ? si.SalesInvoice.Date : DateTime.MinValue).ToList();
+            return View(salesItems);
         }
 
         public IActionResult Inventory()

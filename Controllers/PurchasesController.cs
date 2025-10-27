@@ -20,18 +20,37 @@ namespace ShopInventory.Controllers
             // 1. Today's statistics (combine purchases + sales)
             var today = DateTime.Today;
 
-            var todayPurchaseAmount = await _context.PurchaseInvoices
+            // Use PaidAmount for both purchases and sales so net profit reflects collected cash
+            var todayPurchasePaid = await _context.PurchaseInvoices
                 .Where(p => p.Date.Date == today)
-                .SumAsync(p => (decimal?)p.TotalAmount) ?? 0;
-            var todaySalesAmount = await _context.SalesInvoices
+                .SumAsync(p => (decimal?)p.PaidAmount) ?? 0;
+            var todaySalesPaid = await _context.SalesInvoices
                 .Where(s => s.Date.Date == today)
                 .SumAsync(s => (decimal?)s.PaidAmount) ?? 0;
-            var todayAmount = todayPurchaseAmount + todaySalesAmount;
-            ViewData["TodayPurchasesAmount"] = todayAmount;
 
-            // Net profit = total sales (PaidAmount) - total purchases (TotalAmount)
-            var netProfit = todaySalesAmount - todayPurchaseAmount;
-            ViewData["DailyNetProfit"] = netProfit;
+            // Today's total cash (إجمالي اليوم) is sum of paid amounts for purchases+sales
+            var todayTotal = todayPurchasePaid + todaySalesPaid;
+            ViewData["TodayPurchasesAmount"] = todayTotal;
+
+            // Calculate today's outstanding balances (باقي النقود) for purchases and sales
+            var todayPurchasesBalance = (await _context.PurchaseInvoices
+                .Where(p => p.Date.Date == today)
+                .Select(p => new { p.TotalAmount, p.PaidAmount })
+                .ToListAsync())
+                .Sum(p => p.TotalAmount - p.PaidAmount);
+
+            var todaySalesBalance = (await _context.SalesInvoices
+                .Where(s => s.Date.Date == today)
+                .Select(s => new { s.TotalAmount, s.PaidAmount })
+                .ToListAsync())
+                .Sum(s => s.TotalAmount - s.PaidAmount);
+
+            var totalAllInvoicesBalanceToday = todayPurchasesBalance + todaySalesBalance;
+            ViewData["TotalAllInvoicesBalanceToday"] = totalAllInvoicesBalanceToday;
+
+            // Net profit = إجمالي اليوم - باقي النقود للعملاء
+            var dailyNetProfit = todayTotal - totalAllInvoicesBalanceToday;
+            ViewData["DailyNetProfit"] = dailyNetProfit;
 
             // ...existing code...
 
@@ -55,7 +74,8 @@ namespace ShopInventory.Controllers
                 );
             }
 
-            var filteredPurchaseAmount = await filteredQuery.SumAsync(p => (decimal?)p.TotalAmount) ?? 0;
+            // Use PaidAmount for filtered purchases as well (cash-out)
+            var filteredPurchaseAmount = await filteredQuery.SumAsync(p => (decimal?)p.PaidAmount) ?? 0;
             var filteredPurchaseCount = await filteredQuery.CountAsync();
 
             // Calculate total remaining (Balance) from all invoices (purchases + sales) for the filtered period
@@ -73,6 +93,7 @@ namespace ShopInventory.Controllers
             if (!string.IsNullOrWhiteSpace(searchTerm))
                 filteredSalesQuery = filteredSalesQuery.Where(s => s.InvoiceNumber != null && s.InvoiceNumber.Contains(searchTerm));
 
+            // Use PaidAmount for filtered sales revenue as well (cash-in)
             var filteredSalesAmount = await filteredSalesQuery.SumAsync(s => (decimal?)s.PaidAmount) ?? 0;
             var filteredSalesCount = await filteredSalesQuery.CountAsync();
 
@@ -85,6 +106,10 @@ namespace ShopInventory.Controllers
 
             var filteredAmount = filteredPurchaseAmount + filteredSalesAmount;
             var filteredCount = filteredPurchaseCount + filteredSalesCount;
+
+            // Filtered net profit = filtered total paid (cash) - filtered outstanding balances
+            var filteredNetProfit = filteredAmount - totalAllInvoicesBalanceFiltered;
+            ViewData["FilteredNetProfit"] = filteredNetProfit;
 
             ViewData["TotalPurchasesAmount"] = filteredAmount;
             ViewData["TotalPurchasesCount"] = filteredCount;
