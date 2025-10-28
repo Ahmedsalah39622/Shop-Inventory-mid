@@ -94,6 +94,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Returns" ? "active" : "")"
+                               asp-controller="Returns" asp-action="Index" title="المرتجعات">
+                                <i class="fas fa-undo-alt"></i>
+                                <span class="nav-link-text">المرتجعات</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reports" ? "active" : "")"
                                asp-controller="Reports" asp-action="Index" title="التقارير">
                                 <i class="fas fa-chart-bar"></i>

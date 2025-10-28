@@ -1,0 +1,106 @@
+@model IEnumerable<Return>
+
+@{
+    ViewData["Title"] = "المرتجعات";
+}
+
+<div class="container-fluid px-4 py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">@ViewData["Title"]</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> مرتجع جديد
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>التاريخ</th>
+                            <th>النوع</th>
+                            <th>العميل/المورد</th>
+                            <th>الحالة</th>
+                            <th>إجمالي القيمة</th>
+                            <th>بواسطة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>@item.Date.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    @if (item.Type == "Sales")
+                                    {
+                                        <span class="badge bg-info">مرتجع مبيعات</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning">مرتجع مشتريات</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.Type == "Sales")
+                                    {
+                                        @item.Customer?.Name
+                                    }
+                                    else
+                                    {
+                                        @item.Supplier?.Name
+                                    }
+                                </td>
+                                <td>
+                                    @switch (item.Status)
+                                    {
+                                        case "Pending":
+                                            <span class="badge bg-warning">قيد الانتظار</span>
+                                            break;
+                                        case "Approved":
+                                            <span class="badge bg-success">تم الموافقة</span>
+                                            break;
+                                        case "Rejected":
+                                            <span class="badge bg-danger">مرفوض</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>@item.TotalAmount.ToString("C")</td>
+                                <td>@item.CreatedByUser?.UserName</td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i> تفاصيل
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('table').DataTable({
+                "order": [[0, "desc"]],
+                "language": {
+                    "search": "بحث:",
+                    "lengthMenu": "عرض _MENU_ سجلات",
+                    "info": "عرض _START_ إلى _END_ من _TOTAL_ سجل",
+                    "paginate": {
+                        "first": "الأول",
+                        "last": "الأخير",
+                        "next": "التالي",
+                        "previous": "السابق"
+                    }
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,270 @@
+@model Return
+
+@{
+    ViewData["Title"] = "مرتجع جديد";
+}
+
+<div class="container-fluid px-4 py-3">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">@ViewData["Title"]</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" id="returnForm">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">نوع المرتجع</label>
+                                    <select asp-for="Type" class="form-select" id="returnType">
+                                        <option value="Sales">مرتجع مبيعات</option>
+                                        <option value="Purchase">مرتجع مشتريات</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group" id="customerSection">
+                                    <label class="form-label">العميل</label>
+                                    <select asp-for="CustomerId" class="form-select">
+                                        <option value="">اختر العميل</option>
+                                        @foreach (var customer in ViewBag.Customers)
+                                        {
+                                            <option value="@customer.Id">@customer.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="form-group" id="supplierSection" style="display:none;">
+                                    <label class="form-label">المورد</label>
+                                    <select asp-for="SupplierId" class="form-select">
+                                        <option value="">اختر المورد</option>
+                                        @foreach (var supplier in ViewBag.Suppliers)
+                                        {
+                                            <option value="@supplier.Id">@supplier.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">رقم الفاتورة الأصلية</label>
+                                    <input asp-for="OriginalInvoiceId" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">ملاحظات</label>
+                                    <textarea asp-for="Notes" class="form-control" rows="1"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="mb-3">الأصناف المرتجعة</h4>
+                        <div class="table-responsive mb-3">
+                            <table class="table table-bordered" id="itemsTable">
+                                <thead>
+                                    <tr>
+                                        <th>الصنف</th>
+                                        <th>الكمية</th>
+                                        <th>سعر الوحدة</th>
+                                        <th>سبب الإرجاع</th>
+                                        <th>الإجمالي</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model?.Items != null && Model.Items.Count > 0)
+                                    {
+                                        foreach (var it in Model.Items)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <select class="form-select item-select">
+                                                        <option value="">اختر الصنف</option>
+                                                            @foreach (var item in ViewBag.Items)
+                                                            {
+                                                                var _sel = item.Id == it.ItemId ? "selected" : null;
+                                                                <option value="@item.Id" data-price="@item.SalePrice" selected="@_sel">@item.Name</option>
+                                                            }
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="number" class="form-control quantity-input" min="1" value="@it.Quantity" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" class="form-control price-input" step="0.01" value="@it.UnitPrice" />
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control reason-input" value="@it.ReturnReason" />
+                                                </td>
+                                                <td class="item-total">@( (it.Quantity * it.UnitPrice).ToString("F2") )</td>
+                                                <td>
+                                                    <button type="button" class="btn btn-danger btn-sm remove-item">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    <tr id="newRow" style="display:none;">
+                                        <td>
+                                            <select class="form-select item-select">
+                                                <option value="">اختر الصنف</option>
+                                                @foreach (var item in ViewBag.Items)
+                                                {
+                                                    <option value="@item.Id" data-price="@item.SalePrice">@item.Name</option>
+                                                }
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control quantity-input" min="1" value="1" />
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control price-input" step="0.01" />
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control reason-input" />
+                                        </td>
+                                        <td class="item-total">0.00</td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm remove-item">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-success" id="addItem">
+                                <i class="fas fa-plus"></i> إضافة صنف
+                            </button>
+                        </div>
+
+                        <div class="text-end">
+                            <a asp-action="Index" class="btn btn-secondary">رجوع</a>
+                            <button type="submit" class="btn btn-primary">حفظ المرتجع</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Toggle customer/supplier sections based on return type
+            $('#returnType').change(function () {
+                if ($(this).val() === 'Sales') {
+                    $('#customerSection').show();
+                    $('#supplierSection').hide();
+                } else {
+                    $('#customerSection').hide();
+                    $('#supplierSection').show();
+                }
+            });
+
+            // Add new item row
+            $('#addItem').click(function () {
+                var newRow = $('#newRow').clone();
+                newRow.removeAttr('id').show();
+                $('#itemsTable tbody').append(newRow);
+                updateTotals();
+            });
+
+            // Remove item row
+            $(document).on('click', '.remove-item', function () {
+                $(this).closest('tr').remove();
+                updateTotals();
+            });
+
+            // Update row total when quantity or price changes
+            $(document).on('input', '.quantity-input, .price-input', function () {
+                var row = $(this).closest('tr');
+                var quantity = parseFloat(row.find('.quantity-input').val()) || 0;
+                var price = parseFloat(row.find('.price-input').val()) || 0;
+                row.find('.item-total').text((quantity * price).toFixed(2));
+                updateTotals();
+            });
+
+            // Update price when item selected
+            $(document).on('change', '.item-select', function () {
+                var selectedOption = $(this).find('option:selected');
+                var price = selectedOption.data('price');
+                $(this).closest('tr').find('.price-input').val(price);
+                updateTotals();
+            });
+
+            // Calculate totals
+            function updateTotals() {
+                var total = 0;
+                $('.item-total').each(function () {
+                    total += parseFloat($(this).text()) || 0;
+                });
+                $('#totalAmount').text(total.toFixed(2));
+            }
+
+            // Form submission
+                $('#returnForm').submit(function (e) {
+                    e.preventDefault();
+
+                    var form = $('#returnForm')[0];
+                    var fd = new FormData(form);
+
+                    // Remove any existing Items.* keys in fd (safety)
+                    // (FormData doesn't have a direct remove-by-prefix, so we'll rebuild)
+                    var itemRows = [];
+                    $('#itemsTable tbody tr:visible').each(function () {
+                        var row = $(this);
+                        var itemId = row.find('.item-select').val();
+                        if (itemId) {
+                            itemRows.push({
+                                ItemId: itemId,
+                                Quantity: row.find('.quantity-input').val(),
+                                UnitPrice: row.find('.price-input').val(),
+                                ReturnReason: row.find('.reason-input').val()
+                            });
+                        }
+                    });
+
+                    // create a fresh FormData from the form to include antiforgery token and other fields
+                    fd = new FormData(form);
+
+                    // Append items using MVC indexing style: Items[0].ItemId, Items[0].Quantity, ...
+                    for (var i = 0; i < itemRows.length; i++) {
+                        fd.append('Items[' + i + '].ItemId', itemRows[i].ItemId);
+                        fd.append('Items[' + i + '].Quantity', itemRows[i].Quantity);
+                        fd.append('Items[' + i + '].UnitPrice', itemRows[i].UnitPrice);
+                        fd.append('Items[' + i + '].ReturnReason', itemRows[i].ReturnReason || '');
+                    }
+
+                    $.ajax({
+                        url: $(this).attr('action'),
+                        method: 'POST',
+                        data: fd,
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        success: function () {
+                            window.location.href = '@Url.Action("Index")';
+                        },
+                        error: function (xhr) {
+                            var msg = xhr.responseText || xhr.statusText || 'Server error';
+                            alert('حدث خطأ أثناء حفظ المرتجع: ' + msg);
+                        }
+                    });
+                });
+        });
+    </script>
+}

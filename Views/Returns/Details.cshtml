@@ -1,0 +1,152 @@
+@model Return
+
+@{
+    ViewData["Title"] = "تفاصيل المرتجع";
+}
+
+<div class="container-fluid px-4 py-3">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">تفاصيل المرتجع رقم #@Model.Id</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>معلومات المرتجع</h5>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th style="width: 150px;">التاريخ:</th>
+                                    <td>@Model.Date.ToString("yyyy-MM-dd")</td>
+                                </tr>
+                                <tr>
+                                    <th>النوع:</th>
+                                    <td>
+                                        @if (Model.Type == "Sales")
+                                        {
+                                            <span class="badge bg-info">مرتجع مبيعات</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">مرتجع مشتريات</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>العميل/المورد:</th>
+                                    <td>
+                                        @if (Model.Type == "Sales")
+                                        {
+                                            @Model.Customer?.Name
+                                        }
+                                        else
+                                        {
+                                            @Model.Supplier?.Name
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>الحالة:</th>
+                                    <td>
+                                        @switch (Model.Status)
+                                        {
+                                            case "Pending":
+                                                <span class="badge bg-warning">قيد الانتظار</span>
+                                                break;
+                                            case "Approved":
+                                                <span class="badge bg-success">تم الموافقة</span>
+                                                break;
+                                            case "Rejected":
+                                                <span class="badge bg-danger">مرفوض</span>
+                                                break;
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>بواسطة:</th>
+                                    <td>@Model.CreatedByUser?.UserName</td>
+                                </tr>
+                                <tr>
+                                    <th>رقم الفاتورة الأصلية:</th>
+                                    <td>@Model.OriginalInvoiceId</td>
+                                </tr>
+                                @if (!string.IsNullOrEmpty(Model.Notes))
+                                {
+                                    <tr>
+                                        <th>ملاحظات:</th>
+                                        <td>@Model.Notes</td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3">الأصناف المرتجعة</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>الصنف</th>
+                                    <th>الكمية</th>
+                                    <th>سعر الوحدة</th>
+                                    <th>الإجمالي</th>
+                                    <th>سبب الإرجاع</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <td>@item.Id</td>
+                                        <td>@item.Item?.Name</td>
+                                        <td>@item.Quantity</td>
+                                        <td>@item.UnitPrice.ToString("C")</td>
+                                        <td>@item.Total.ToString("C")</td>
+                                        <td>@item.ReturnReason</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>الإجمالي:</strong></td>
+                                    <td colspan="2"><strong>@Model.TotalAmount.ToString("C")</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    @if (Model.Status == "Pending")
+                    {
+                        <div class="mt-4">
+                            <form asp-action="UpdateStatus" method="post" class="d-inline-block">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <input type="hidden" name="status" value="Approved" />
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-check"></i> موافقة
+                                </button>
+                            </form>
+                            <form asp-action="UpdateStatus" method="post" class="d-inline-block ms-2">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <input type="hidden" name="status" value="Rejected" />
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-times"></i> رفض
+                                </button>
+                            </form>
+                        </div>
+                    }
+
+                    <div class="mt-4">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-right"></i> رجوع للقائمة
+                        </a>
+                        <button class="btn btn-primary" onclick="window.print()">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

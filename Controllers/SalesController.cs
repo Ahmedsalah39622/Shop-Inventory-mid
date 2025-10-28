@@ -109,12 +109,19 @@ namespace ShopInventory.Controllers
                         product.Quantity -= (int)item.Quantity;
                     _context.Update(product);
 
-                    // Create stock movement record
+                    // Create stock movement record (map item -> product)
+                    var itemEntity = await _context.Items.FindAsync(item.ItemId);
+                    var prodId = 0;
+                    if (itemEntity != null)
+                    {
+                        prodId = await ShopInventory.Helpers.ProductMapper.GetOrCreateProductIdForItem(_context, itemEntity);
+                    }
+
                     var movement = new StockMovement
                     {
-                        ProductId = item.ItemId,
+                        ProductId = prodId,
                         MovementType = MovementType.Out,
-                            Quantity = (int)item.Quantity,
+                        Quantity = (int)item.Quantity,
                         Date = DateTime.Now,
                         Reference = sale.InvoiceNumber,
                         CreatedByUserId = userId

@@ -140,6 +140,18 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xTdXBwbGllcnMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/ITTSOFT/Shop-Inventory-mid/Shop-Inventory-mid/Views/Returns/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmV0dXJuc1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ITTSOFT/Shop-Inventory-mid/Shop-Inventory-mid/Views/Returns/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmV0dXJuc1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ITTSOFT/Shop-Inventory-mid/Shop-Inventory-mid/Views/Returns/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmV0dXJuc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/ITTSOFT/Shop-Inventory-mid/Shop-Inventory-mid/Views/Sales/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2FsZXNcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 

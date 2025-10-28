@@ -75,6 +75,29 @@ namespace ShopInventory.Controllers
             {
                 _context.Add(item);
                 await _context.SaveChangesAsync();
+
+                // Record initial stock movement for this new item if quantity > 0
+                try
+                {
+                    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+                    if (item.Quantity > 0)
+                    {
+                        // Ensure Product exists for this Item
+                        var prodId = await ShopInventory.Helpers.ProductMapper.GetOrCreateProductIdForItem(_context, item);
+                        var movement = new StockMovement
+                        {
+                            ProductId = prodId,
+                            MovementType = MovementType.In,
+                            Quantity = item.Quantity,
+                            Date = DateTime.Now,
+                            Reference = $"Initial stock for item #{item.Id}",
+                            CreatedByUserId = userId
+                        };
+                        _context.StockMovements.Add(movement);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+                catch { /* don't block creation on movement logging */ }
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.Suppliers = await _context.Suppliers.ToListAsync();
@@ -107,8 +130,35 @@ namespace ShopInventory.Controllers
             {
                 try
                 {
+                    // get previous quantity
+                    var prev = await _context.Items.AsNoTracking().FirstOrDefaultAsync(i => i.Id == id);
+                    var prevQty = prev?.Quantity ?? 0;
+
                     _context.Update(item);
                     await _context.SaveChangesAsync();
+
+                    // if quantity changed, record stock movement
+                    var delta = item.Quantity - prevQty;
+                    if (delta != 0)
+                    {
+                        try
+                        {
+                            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+                            var prodId = await ShopInventory.Helpers.ProductMapper.GetOrCreateProductIdForItem(_context, item);
+                            var movement = new StockMovement
+                            {
+                                ProductId = prodId,
+                                MovementType = delta > 0 ? MovementType.In : MovementType.Out,
+                                Quantity = delta,
+                                Date = DateTime.Now,
+                                Reference = $"Adjustment via edit for item #{item.Id}",
+                                CreatedByUserId = userId
+                            };
+                            _context.StockMovements.Add(movement);
+                            await _context.SaveChangesAsync();
+                        }
+                        catch { /* swallow logging errors */ }
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -194,10 +244,27 @@ namespace ShopInventory.Controllers
             if (item == null)
                 return NotFound("لم يتم العثور على المنتج.");
 
-            var movements = await _context.StockMovements
-                .Where(m => m.ProductId == itemId)
-                .OrderByDescending(m => m.Date)
-                .ToListAsync();
+            // Map Item.Id to Product.Id so we show movements for the correct product
+            var prod = await _context.Products.FirstOrDefaultAsync(p => p.SKU == item.Code || p.Name == item.Name);
+            int productId = 0;
+            if (prod != null)
+            {
+                productId = prod.Id;
+            }
+            else
+            {
+                // Ensure a Product exists for this Item (creates if missing)
+                productId = await ShopInventory.Helpers.ProductMapper.GetOrCreateProductIdForItem(_context, item);
+            }
+
+            var movements = new List<StockMovement>();
+            if (productId != 0)
+            {
+                movements = await _context.StockMovements
+                    .Where(m => m.ProductId == productId)
+                    .OrderByDescending(m => m.Date)
+                    .ToListAsync();
+            }
 
             ViewBag.Item = item;
             return View(movements);

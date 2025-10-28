@@ -27,6 +27,8 @@ namespace ShopInventory.Data
     public DbSet<ActivityLog> ActivityLogs { get; set; }
     public DbSet<Installment> Installments { get; set; }
     public DbSet<InstallmentPayment> InstallmentPayments { get; set; }
+    public DbSet<Return> Returns { get; set; }
+    public DbSet<ReturnItem> ReturnItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

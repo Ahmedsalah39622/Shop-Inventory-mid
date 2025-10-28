@@ -45,7 +45,23 @@ namespace ShopInventory.Controllers
                 .OrderByDescending(sm => sm.Date);
 
             if (itemId.HasValue)
-                query = query.Where(sm => sm.ProductId == itemId);
+            {
+                // Map Item.Id to Product.Id
+                var item = await _context.Items.FindAsync(itemId.Value);
+                if (item != null)
+                {
+                    var prod = await _context.Products.FirstOrDefaultAsync(p => p.SKU == item.Code || p.Name == item.Name);
+                    var productId = prod != null ? prod.Id : await ShopInventory.Helpers.ProductMapper.GetOrCreateProductIdForItem(_context, item);
+                    if (productId != 0)
+                        query = query.Where(sm => sm.ProductId == productId);
+                    else
+                        query = query.Where(sm => false); // no movements if product missing
+                }
+                else
+                {
+                    query = query.Where(sm => false);
+                }
+            }
 
             var movements = await query.Take(100).ToListAsync();
             return View(movements);

@@ -18,7 +18,16 @@ namespace ShopInventory.Services
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var product = await _context.Products.FindAsync(itemId);
+                // Map the incoming itemId (Item.Id) to the Products.Id that StockMovements use
+                var item = await _context.Items.FindAsync(itemId);
+                if (item == null)
+                    return false;
+
+                var productId = await ShopInventory.Helpers.ProductMapper.GetOrCreateProductIdForItem(_context, item);
+                if (productId == 0)
+                    return false;
+
+                var product = await _context.Products.FindAsync(productId);
                 if (product == null)
                     return false;
 
@@ -38,10 +47,10 @@ namespace ShopInventory.Services
                         break;
                 }
 
-                // Create stock movement record
+                // Create stock movement record using the mapped product id
                 var movement = new StockMovement
                 {
-                    ProductId = itemId,
+                    ProductId = productId,
                     Quantity = quantity,
                     MovementType = movementType,
                     Date = DateTime.UtcNow,
