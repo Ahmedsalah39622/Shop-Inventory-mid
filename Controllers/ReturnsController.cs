@@ -188,37 +188,9 @@ public class ReturnsController : Controller
             _context.Returns.Add(returnModel);
             await _context.SaveChangesAsync();
 
-            // Now create stock movements for each returned item
-            foreach (var item in returnModel.Items)
-            {
-                var qty = returnModel.Type == "Sales" ? item.Quantity : -item.Quantity;
-                // Ensure we have a Product record for this Item and use its Id for StockMovement
-                var stockItemEntity = await _context.Items.FindAsync(item.ItemId);
-                var productId = 0;
-                if (stockItemEntity != null)
-                {
-                    productId = await ProductMapper.GetOrCreateProductIdForItem(_context, stockItemEntity);
-                }
-
-                var movement = new StockMovement
-                {
-                    Date = returnModel.Date,
-                    ProductId = productId,
-                    Quantity = qty,
-                    MovementType = MovementType.Return,
-                    Reference = $"Return #{returnModel.Id} - {item.ReturnReason}",
-                    CreatedByUserId = user?.Id ?? string.Empty
-                };
-                _context.StockMovements.Add(movement);
-
-                // Update item quantity
-                var stockItem2 = await _context.Items.FindAsync(item.ItemId);
-                if (stockItem2 != null)
-                {
-                    stockItem2.Quantity += Convert.ToInt32(qty);
-                }
-            }
-
+            // The return is saved, but we do NOT apply stock movements or change item quantities here.
+            // Movements and quantity updates will be applied when the return status is changed to "Approved"
+            // (see UpdateStatus action).
             await _context.SaveChangesAsync();
 
             // If AJAX request, return 200 OK for client script to redirect
