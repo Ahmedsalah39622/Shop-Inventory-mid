@@ -110,6 +110,13 @@
                                 <span class="nav-link-text">التقارير</span>
                             </a>
                         </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "StockMovements" ? "active" : "")"
+                                   asp-controller="StockMovements" asp-action="Index" title="حركات المخزون">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <span class="nav-link-text">حركات المخزون</span>
+                                </a>
+                            </li>
                     </ul>
 
                    

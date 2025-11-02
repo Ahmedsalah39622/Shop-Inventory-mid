@@ -98,6 +98,37 @@
             </div>
         </div>
     </div>
+    <!-- Section: إضافة بضاعة جديدة لنفس المنتج -->
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card mb-4 border-success">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-plus-circle me-1"></i>
+                    إضافة بضاعة جديدة لهذا المنتج
+                </div>
+                <div class="card-body">
+                    <form asp-action="AddStock" method="post">
+                        <input type="hidden" name="ItemId" value="@Model.Id" />
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">تاريخ الإنتاج</label>
+                                <input type="date" name="ProductionDate" class="form-control" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">تاريخ الانتهاء</label>
+                                <input type="date" name="ExpiryDate" class="form-control" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">الكمية المضافة</label>
+                                <input type="number" name="Quantity" class="form-control" min="1" required />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success">إضافة بضاعة جديدة</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

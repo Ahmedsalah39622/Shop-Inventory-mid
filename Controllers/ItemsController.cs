@@ -275,5 +275,42 @@ namespace ShopInventory.Controllers
             var items = await _inventoryService.GetExpiringItemsAsync();
             return View("Index", items);
         }
+        // إضافة بضاعة جديدة لنفس المنتج
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddStock(int ItemId, DateTime ProductionDate, DateTime? ExpiryDate, int Quantity)
+        {
+            var item = await _context.Items.FindAsync(ItemId);
+            if (item == null || Quantity <= 0)
+                return NotFound();
+
+            // زيادة الكمية
+            item.Quantity += Quantity;
+            if (ExpiryDate.HasValue)
+                item.ExpiryDate = ExpiryDate.Value;
+            await _context.SaveChangesAsync();
+
+            // سجل حركة المخزون
+            try
+            {
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+                var prodId = await ShopInventory.Helpers.ProductMapper.GetOrCreateProductIdForItem(_context, item);
+                var movement = new StockMovement
+                {
+                    ProductId = prodId,
+                    MovementType = MovementType.In,
+                    Quantity = Quantity,
+                    Date = DateTime.Now,
+                    Reference = $"إضافة بضاعة جديدة بتاريخ إنتاج {ProductionDate:yyyy-MM-dd}",
+                    CreatedByUserId = userId
+                };
+                _context.StockMovements.Add(movement);
+                await _context.SaveChangesAsync();
+            }
+            catch { }
+
+            TempData["Success"] = "تمت إضافة البضاعة الجديدة بنجاح.";
+            return RedirectToAction("Edit", new { id = ItemId });
+        }
     }
 }

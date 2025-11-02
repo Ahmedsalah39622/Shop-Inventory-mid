@@ -1,0 +1,39 @@
+@model IEnumerable<ShopInventory.Models.StockMovement>
+@{
+    ViewData["Title"] = "كل حركات المخزون";
+    Layout = "_DashboardLayout";
+}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">كل حركات المخزون</h1>
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>المنتج</th>
+                            <th>النوع</th>
+                            <th>الكمية</th>
+                            <th>التاريخ</th>
+                            <th>الوصف</th>
+                            <th>بواسطة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in Model)
+                        {
+                            <tr>
+                                <td>@(m.Product != null ? m.Product.Name : "-")</td>
+                                <td>@m.MovementType</td>
+                                <td>@m.Quantity</td>
+                                <td>@m.Date.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>@m.Reference</td>
+                                <td>@(m.CreatedByUser != null ? m.CreatedByUser.FullName ?? m.CreatedByUser.UserName : "-")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

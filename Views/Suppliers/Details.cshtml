@@ -1,0 +1,24 @@
+@model ShopInventory.Models.Supplier
+@{
+    ViewData["Title"] = "تفاصيل المورد";
+    Layout = "_DashboardLayout";
+}
+<div class="container mt-4">
+    <h2 class="mb-4">تفاصيل المورد</h2>
+    <div class="card">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">اسم المورد</dt>
+                <dd class="col-sm-9">@Model.Name</dd>
+                <dt class="col-sm-3">البريد الإلكتروني</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+                <dt class="col-sm-3">رقم الهاتف</dt>
+                <dd class="col-sm-9">@Model.Phone</dd>
+                <dt class="col-sm-3">العنوان</dt>
+                <dd class="col-sm-9">@Model.Address</dd>
+            </dl>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">تعديل</a>
+            <a asp-action="Index" class="btn btn-secondary ms-2">رجوع</a>
+        </div>
+    </div>
+</div>
