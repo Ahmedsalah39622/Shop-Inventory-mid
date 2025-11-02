@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ShopInventory.Data;
 using ShopInventory.Models;
 using ShopInventory.Helpers;
+using System.Linq;
 
 namespace ShopInventory.Controllers;
 
@@ -94,6 +95,29 @@ public class ReturnsController : Controller
                 }).ToList();
                 model.TotalAmount = model.Items.Sum(i => i.Quantity * i.UnitPrice);
             }
+            else
+            {
+                // If not found as a purchase invoice, try matching a sales invoice by invoice number
+                var sale = await _context.SalesInvoices
+                    .Include(s => s.SalesInvoiceItems)
+                        .ThenInclude(si => si.Item)
+                    .FirstOrDefaultAsync(s => s.InvoiceNumber == invoiceNumber);
+
+                if (sale != null)
+                {
+                    model.Type = "Sales";
+                    model.OriginalInvoiceId = sale.Id;
+                    model.CustomerId = sale.CustomerId;
+                    model.Items = sale.SalesInvoiceItems.Select(si => new ReturnItem
+                    {
+                        ItemId = si.ItemId,
+                        Quantity = Convert.ToInt32(si.Quantity),
+                        UnitPrice = si.UnitPrice,
+                        ReturnReason = ""
+                    }).ToList();
+                    model.TotalAmount = model.Items.Sum(i => i.Quantity * i.UnitPrice);
+                }
+            }
         }
 
         if (itemId.HasValue)
@@ -166,6 +190,9 @@ public class ReturnsController : Controller
             }
         }
         returnModel.Items = items;
+
+    // Calculate total amount from items so dashboard and reports can use it
+    returnModel.TotalAmount = returnModel.Items?.Sum(i => i.Quantity * i.UnitPrice) ?? 0m;
 
         if (returnModel == null)
         {
@@ -252,8 +279,13 @@ public class ReturnsController : Controller
 
         if (status == "Approved")
         {
+            // mark approval time so dashboard "today" calculations pick this approval
+            returnModel.Date = DateTime.Now;
+
+            // ensure TotalAmount is set (in case it was not set at creation)
+            returnModel.TotalAmount = returnModel.Items?.Sum(i => i.Quantity * i.UnitPrice) ?? returnModel.TotalAmount;
             // Create stock movements for approved returns
-            foreach (var item in returnModel.Items)
+            foreach (var item in returnModel.Items ?? Enumerable.Empty<ReturnItem>())
             {
                 var stockItem = await _context.Items.FindAsync(item.ItemId);
                 var productId2 = 0;

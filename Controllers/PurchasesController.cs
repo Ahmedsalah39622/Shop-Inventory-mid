@@ -20,19 +20,25 @@ namespace ShopInventory.Controllers
             // 1. Today's statistics (combine purchases + sales)
             var today = DateTime.Today;
 
-            // Use PaidAmount for both purchases and sales so net profit reflects collected cash
+            // Compute today's totals. Per the requested behavior, Net Profit is the sum of sales totals only.
             var todayPurchasePaid = await _context.PurchaseInvoices
                 .Where(p => p.Date.Date == today)
                 .SumAsync(p => (decimal?)p.PaidAmount) ?? 0;
+
+            // Sum of sales total amounts for today (not PaidAmount)
+            var todaySalesTotal = await _context.SalesInvoices
+                .Where(s => s.Date.Date == today)
+                .SumAsync(s => (decimal?)s.TotalAmount) ?? 0;
+
+            // Today's total cash (إجمالي اليوم) remains the sum of paid amounts for purchases+sales
             var todaySalesPaid = await _context.SalesInvoices
                 .Where(s => s.Date.Date == today)
                 .SumAsync(s => (decimal?)s.PaidAmount) ?? 0;
 
-            // Today's total cash (إجمالي اليوم) is sum of paid amounts for purchases+sales
             var todayTotal = todayPurchasePaid + todaySalesPaid;
             ViewData["TodayPurchasesAmount"] = todayTotal;
 
-            // Calculate today's outstanding balances (باقي النقود) for purchases and sales
+            // Calculate today's outstanding balances (باقي النقود) for purchases and sales (unchanged)
             var todayPurchasesBalance = (await _context.PurchaseInvoices
                 .Where(p => p.Date.Date == today)
                 .Select(p => new { p.TotalAmount, p.PaidAmount })
@@ -45,11 +51,20 @@ namespace ShopInventory.Controllers
                 .ToListAsync())
                 .Sum(s => s.TotalAmount - s.PaidAmount);
 
-            var totalAllInvoicesBalanceToday = todayPurchasesBalance + todaySalesBalance;
-            ViewData["TotalAllInvoicesBalanceToday"] = totalAllInvoicesBalanceToday;
+            // Keep the today's customer outstanding available for the view
+            var totalCustomerInvoicesBalanceToday = todaySalesBalance;
+            ViewData["TotalAllInvoicesBalanceToday"] = totalCustomerInvoicesBalanceToday;
 
-            // Net profit = إجمالي اليوم - باقي النقود للعملاء
-            var dailyNetProfit = todayTotal - totalAllInvoicesBalanceToday;
+            // Today's approved sales returns: count and total amount
+            var todayReturnsQuery = _context.Returns
+                .Where(r => r.Type == "Sales" && r.Status == "Approved" && r.Date.Date == today);
+            var todayReturnsCount = await todayReturnsQuery.CountAsync();
+            var todayReturnsTotal = await todayReturnsQuery.SumAsync(r => (decimal?)r.TotalAmount) ?? 0m;
+            ViewData["TodayReturnsCount"] = todayReturnsCount;
+            ViewData["TodayReturnsTotal"] = todayReturnsTotal;
+
+            // Net profit = sum of today's sales totals (TotalAmount) minus approved sales returns
+            var dailyNetProfit = todaySalesTotal - todayReturnsTotal;
             ViewData["DailyNetProfit"] = dailyNetProfit;
 
             // ...existing code...
@@ -93,22 +108,39 @@ namespace ShopInventory.Controllers
             if (!string.IsNullOrWhiteSpace(searchTerm))
                 filteredSalesQuery = filteredSalesQuery.Where(s => s.InvoiceNumber != null && s.InvoiceNumber.Contains(searchTerm));
 
-            // Use PaidAmount for filtered sales revenue as well (cash-in)
-            var filteredSalesAmount = await filteredSalesQuery.SumAsync(s => (decimal?)s.PaidAmount) ?? 0;
+            // Use TotalAmount for filtered sales revenue when computing net profit (sum of sales totals as requested)
+            var filteredSalesAmount = await filteredSalesQuery.SumAsync(s => (decimal?)s.TotalAmount) ?? 0;
             var filteredSalesCount = await filteredSalesQuery.CountAsync();
 
             var filteredSalesBalance = (await filteredSalesQuery
                 .Select(s => new { s.TotalAmount, s.PaidAmount })
                 .ToListAsync())
                 .Sum(s => s.TotalAmount - s.PaidAmount);
-            var totalAllInvoicesBalanceFiltered = filteredPurchasesBalance + filteredSalesBalance;
-            ViewData["TotalAllInvoicesBalanceToday"] = totalAllInvoicesBalanceFiltered;
+            // For filtered view, keep the filtered customer outstanding available
+            var totalCustomerInvoicesBalanceFiltered = filteredSalesBalance;
+            ViewData["TotalAllInvoicesBalanceFiltered"] = totalCustomerInvoicesBalanceFiltered;
 
             var filteredAmount = filteredPurchaseAmount + filteredSalesAmount;
             var filteredCount = filteredPurchaseCount + filteredSalesCount;
 
-            // Filtered net profit = filtered total paid (cash) - filtered outstanding balances
-            var filteredNetProfit = filteredAmount - totalAllInvoicesBalanceFiltered;
+            // Filtered net profit = sum of filtered sales totals (TotalAmount)
+            // Filtered approved sales returns: count and total amount (respect filters)
+            var filteredReturnsQuery = _context.Returns.AsQueryable();
+            if (startDate.HasValue)
+                filteredReturnsQuery = filteredReturnsQuery.Where(r => r.Date.Date >= startDate.Value.Date);
+            if (endDate.HasValue)
+                filteredReturnsQuery = filteredReturnsQuery.Where(r => r.Date.Date <= endDate.Value.Date);
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                // If a searchTerm exists, we try to match it against invoice number or supplier/customer names by joining returns' original invoice or supplier - keep simple: skip complex joins here
+            }
+            filteredReturnsQuery = filteredReturnsQuery.Where(r => r.Type == "Sales" && r.Status == "Approved");
+            var filteredReturnsCount = await filteredReturnsQuery.CountAsync();
+            var filteredReturnsTotal = await filteredReturnsQuery.SumAsync(r => (decimal?)r.TotalAmount) ?? 0m;
+            ViewData["FilteredReturnsCount"] = filteredReturnsCount;
+            ViewData["FilteredReturnsTotal"] = filteredReturnsTotal;
+            // Filtered net profit = filtered sales totals minus approved returns in the filtered period
+            var filteredNetProfit = filteredSalesAmount - filteredReturnsTotal;
             ViewData["FilteredNetProfit"] = filteredNetProfit;
 
             ViewData["TotalPurchasesAmount"] = filteredAmount;

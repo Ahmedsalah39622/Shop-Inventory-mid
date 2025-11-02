@@ -932,9 +932,14 @@
             <div class="stat-content">
                 <div class="stat-label">المبيعات اليوم</div>
                 <div class="stat-value">@Model.TotalSales.ToString("C")</div>
-                <div class="stat-trend trend-up">
+                <div class="stat-trend @(Model.SalesAmountIncreased ? "trend-up" : "trend-down")">
                     <i class="fas fa-chart-line"></i>
-                    <span>زيادة 12%</span>
+                    @{
+                        var amtChange = Model.SalesAmountPercentChange;
+                        var sign = amtChange > 0 ? "زيادة" : (amtChange < 0 ? "تناقص" : "لا تغيير");
+                        var display = amtChange == 0 ? "0%" : Math.Abs(amtChange).ToString("0.##") + "%";
+                    }
+                    <span>@(sign == "لا تغيير" ? "لا تغيير" : sign + " " + display)</span>
                 </div>
             </div>
         </div>
@@ -948,11 +953,16 @@
                  </div>
             </div>
             <div class="stat-content">
-                <div class="stat-label">إجمالي الطلبات</div>
-                <div class="stat-value">@Model.TotalOrders</div>
-                <div class="stat-trend trend-up">
+                <div class="stat-label">إجمالي المبيعات</div>
+                <div class="stat-value">@Model.SalesCount</div>
+                <div class="stat-trend @(Model.SalesCountIncreased ? "trend-up" : "trend-down")">
                     <i class="bi bi-arrow-up-right"></i>
-                    <span>اليوم</span>
+                    @{
+                        var cntChange = Model.SalesCountPercentChange;
+                        var signCnt = cntChange > 0 ? "زيادة" : (cntChange < 0 ? "تناقص" : "لا تغيير");
+                        var displayCnt = cntChange == 0 ? "0%" : Math.Abs(cntChange).ToString("0.##") + "%";
+                    }
+                    <span>@(signCnt == "لا تغيير" ? "لا تغيير" : signCnt + " " + displayCnt)</span>
                 </div>
             </div>
         </div>

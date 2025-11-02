@@ -28,10 +28,11 @@ public class DashboardController : Controller
                 .Where(p => p.Date.Date == today)
                 .SumAsync(p => p.TotalAmount);
 
-            // Sales: sum PaidAmount (collected money) so down payments are counted instead of full total
-            viewModel.TotalSales = await _context.SalesInvoices
+            // Sales: use sum of TotalAmount (full sale value) and subtract approved sales returns so the card reflects net sales
+            var totalSalesAmount = await _context.SalesInvoices
                 .Where(s => s.Date.Date == today)
-                .SumAsync(s => (decimal?)s.PaidAmount) ?? 0m;
+                .SumAsync(s => (decimal?)s.TotalAmount) ?? 0m;
+            viewModel.TotalSales = totalSalesAmount;
 
             viewModel.TotalOrders = await _context.PurchaseInvoices
                 .Where(p => p.Date.Date == today)
@@ -40,6 +41,42 @@ public class DashboardController : Controller
             viewModel.LowStockItems = await _context.Items
                 .Where(i => i.Quantity <= i.ReorderLevel && i.IsActive)
                 .CountAsync();
+
+            // Count today's sales (number of sales invoices)
+            viewModel.SalesCount = await _context.SalesInvoices
+                .Where(s => s.Date.Date == today)
+                .CountAsync();
+
+            // Compute previous day values for percentage change
+            var prevDay = today.AddDays(-1);
+            // Previous day sales total (subtract approved returns on that day)
+            var prevDaySalesTotal = await _context.SalesInvoices
+                .Where(s => s.Date.Date == prevDay)
+                .SumAsync(s => (decimal?)s.TotalAmount) ?? 0m;
+            var prevDayReturnsTotal = await _context.Returns
+                .Where(r => r.Type == "Sales" && r.Status == "Approved" && r.Date.Date == prevDay)
+                .SumAsync(r => (decimal?)r.TotalAmount) ?? 0m;
+            prevDaySalesTotal = Math.Max(0, prevDaySalesTotal - prevDayReturnsTotal);
+
+            var prevDaySalesCount = await _context.SalesInvoices
+                .Where(s => s.Date.Date == prevDay)
+                .CountAsync();
+
+            // Helper to compute percent change; when previous is 0, treat as 0% if both 0, otherwise 100%
+            decimal computePercent(decimal todayVal, decimal prevVal)
+            {
+                if (prevVal == 0m)
+                {
+                    if (todayVal == 0m) return 0m;
+                    return 100m;
+                }
+                return Math.Round((todayVal - prevVal) / prevVal * 100m, 2);
+            }
+
+            viewModel.SalesAmountPercentChange = computePercent(viewModel.TotalSales, prevDaySalesTotal);
+            viewModel.SalesAmountIncreased = viewModel.TotalSales >= prevDaySalesTotal;
+            viewModel.SalesCountPercentChange = computePercent(viewModel.SalesCount, prevDaySalesCount);
+            viewModel.SalesCountIncreased = viewModel.SalesCount >= prevDaySalesCount;
 
             // Get best selling items data
             var items = await _context.Items
@@ -68,18 +105,39 @@ public class DashboardController : Controller
                     .ThenInclude(s => s!.CreatedByUser)
                 .Where(si => si.SalesInvoice != null && si.SalesInvoice.Date.Date == today && si.SalesInvoice.CreatedByUser != null)
                 .ToListAsync();
+            // Also subtract any approved sales returns from today's sales counts
+            var todayReturns = await _context.ReturnItems
+                .Include(ri => ri.Return)
+                .Include(ri => ri.Item)
+                .Where(ri => ri.Return != null && ri.Return.Type == "Sales" && ri.Return.Status == "Approved" && ri.Return.Date.Date == today)
+                .ToListAsync();
+
+            // Build a lookup of returned quantities per ItemId
+            var returnedQuantities = todayReturns
+                .Where(ri => ri.Item != null)
+                .GroupBy(ri => ri.ItemId)
+                .ToDictionary(g => g.Key, g => g.Sum(x => x.Quantity));
 
             viewModel.TopSellingItems = todaySales
                 .Where(si => si.Item != null)
                 .GroupBy(si => new { ItemId = si.Item?.Id ?? 0, ItemName = si.Item?.Name ?? "Unknown Item" })
-                .Select(g => new TopSellingItem 
-                { 
-                    Name = g.Key.ItemName,
-                    Quantity = g.Sum(si => si.Quantity)
+                .Select(g => {
+                    var soldQty = g.Sum(si => si.Quantity);
+                    var returnedQty = returnedQuantities.ContainsKey(g.Key.ItemId) ? returnedQuantities[g.Key.ItemId] : 0;
+                    var netQty = soldQty - returnedQty;
+                    if (netQty < 0) netQty = 0;
+                    return new TopSellingItem { Name = g.Key.ItemName, Quantity = netQty };
                 })
                 .OrderByDescending(x => x.Quantity)
                 .Take(5)
                 .ToList();
+
+            // Adjust total sales money by subtracting approved sales returns amounts for today
+            var returnsTotalAmount = await _context.Returns
+                .Where(r => r.Type == "Sales" && r.Status == "Approved" && r.Date.Date == today)
+                .SumAsync(r => (decimal?)r.TotalAmount) ?? 0m;
+
+            viewModel.TotalSales = Math.Max(0, viewModel.TotalSales - returnsTotalAmount);
 
             viewModel.Items = await _context.Items
                 .Where(i => i.IsActive && i.Quantity > 0)
