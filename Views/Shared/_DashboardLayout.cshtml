@@ -46,54 +46,12 @@
                                 <i class="fas fa-tachometer-alt"></i>
                                 <span class="nav-link-text">لوحة التحكم</span>
                             </a>
-                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                        <span>الإدارة</span>
-                    </h6>
-                    <ul class="nav flex-column mb-2">
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Users" ? "active" : "")"
-                               asp-controller="Users" asp-action="Index" title="المستخدمين">
-                                <i class="fas fa-user-cog"></i>
-                                <span class="nav-link-text">المستخدمين</span>
-                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Items" ? "active" : "")"
-                               asp-controller="Items" asp-action="Index" title="المخزون">
-                                <i class="fas fa-box"></i>
-                                <span class="nav-link-text">المخزون</span>
-                            </a>
-                        </li>
-                    </ul>
-                    <ul class="nav flex-column mb-2">
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Purchases" ? "active" : "")"
-                               asp-controller="Purchases" asp-action="Index" title="اخر المبيعات">
-                                <i class="fas fa-history"></i>
-                                <span class="nav-link-text">اخر المبيعات</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Customers" ? "active" : "")"
-                               asp-controller="Customers" asp-action="Index" title="العملاء">
-                                <i class="fas fa-users"></i>
-                                <span class="nav-link-text">العملاء</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Installments" ? "active" : "")"
-                               asp-controller="Installments" asp-action="Index" title="التقسيط">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span class="nav-link-text">التقسيط</span>
-                            </a>
-                        </li>
-                    </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Suppliers" ? "active" : "")"
-                               asp-controller="Suppliers" asp-action="Index" title="الموردين">
-                                <i class="fas fa-truck"></i>
-                                <span class="nav-link-text">الموردين</span>
+                               asp-controller="Purchases" asp-action="Index" title="المبيعات">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="nav-link-text">المبيعات</span>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -104,20 +62,54 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Items" ? "active" : "")"
+                               asp-controller="Items" asp-action="Index" title="المخزون">
+                                <i class="fas fa-box"></i>
+                                <span class="nav-link-text">المخزون</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "StockMovements" ? "active" : "")"
+                               asp-controller="StockMovements" asp-action="Index" title="حركات المخزون">
+                                <i class="fas fa-exchange-alt"></i>
+                                <span class="nav-link-text">حركات المخزون</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Customers" ? "active" : "")"
+                               asp-controller="Customers" asp-action="Index" title="العملاء">
+                                <i class="fas fa-users"></i>
+                                <span class="nav-link-text">العملاء</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Suppliers" ? "active" : "")"
+                               asp-controller="Suppliers" asp-action="Index" title="الموردين">
+                                <i class="fas fa-truck"></i>
+                                <span class="nav-link-text">الموردين</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Purchases" ? "active" : "")"
+                               asp-controller="Purchases" asp-action="Index" title="المشتريات">
+                                <i class="fas fa-history"></i>
+                                <span class="nav-link-text">المشتريات</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Installments" ? "active" : "")"
+                               asp-controller="Installments" asp-action="Index" title="التقسيط">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span class="nav-link-text">التقسيط</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reports" ? "active" : "")"
                                asp-controller="Reports" asp-action="Index" title="التقارير">
                                 <i class="fas fa-chart-bar"></i>
                                 <span class="nav-link-text">التقارير</span>
                             </a>
                         </li>
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "StockMovements" ? "active" : "")"
-                                   asp-controller="StockMovements" asp-action="Index" title="حركات المخزون">
-                                    <i class="fas fa-exchange-alt"></i>
-                                    <span class="nav-link-text">حركات المخزون</span>
-                                </a>
-                            </li>
-                    </ul>
 
                    
                 </div>

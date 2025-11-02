@@ -27,7 +27,29 @@
                                 <td>@m.MovementType</td>
                                 <td>@m.Quantity</td>
                                 <td>@m.Date.ToString("yyyy-MM-dd HH:mm")</td>
-                                <td>@m.Reference</td>
+                                <td>
+                                    @{
+                                        var desc = m.Reference;
+                                        if (desc != null)
+                                        {
+                                            desc = desc.Replace("Initial stock for item", "إضافة أولية للمنتج رقم")
+                                                       .Replace("Approved", "تمت الموافقة")
+                                                       .Replace("Return", "مرتجع")
+                                                       .Replace("إضافة بضاعة جديدة بتاريخ إنتاج", "إضافة بضاعة جديدة بتاريخ إنتاج");
+                                        }
+                                        string expiry = "";
+                                        if (m.Product != null && m.Product.CurrentStock > 0 && m.Product is ShopInventory.Models.Product)
+                                        {
+                                            // لا يوجد تاريخ انتهاء في Product، نبحث في Item
+                                            var item = ViewBag.Items != null ? ((IEnumerable<ShopInventory.Models.Item>)ViewBag.Items).FirstOrDefault(i => i.Name == m.Product.Name) : null;
+                                            if (item != null && item.ExpiryDate.HasValue)
+                                            {
+                                                expiry = $" | تاريخ الانتهاء: {item.ExpiryDate.Value:yyyy-MM-dd}";
+                                            }
+                                        }
+                                        @desc @expiry
+                                    }
+                                </td>
                                 <td>@(m.CreatedByUser != null ? m.CreatedByUser.FullName ?? m.CreatedByUser.UserName : "-")</td>
                             </tr>
                         }
